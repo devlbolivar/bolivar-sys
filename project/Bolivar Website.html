@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BOLIVAR_SYS — Servicios Digitales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: #030D18; font-family: 'Space Grotesk', sans-serif; overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; cursor: pointer; }
+    input, textarea { font-family: 'Space Mono', monospace; }
+    ::placeholder { opacity: .32; color: #00D4FF; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #030D18; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,212,255,.2); border-radius: 2px; }
+    @keyframes fadeUp  { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:.22} }
+    @keyframes blink   { 0%,100%{opacity:1} 50%{opacity:0} }
+    @keyframes glowin  { 0%,100%{box-shadow:0 0 28px rgba(0,212,255,.18)} 50%{box-shadow:0 0 52px rgba(0,212,255,.44)} }
+    @keyframes orbit   { from{transform:rotate(0deg) translateX(220px) rotate(0deg)} to{transform:rotate(360deg) translateX(220px) rotate(-360deg)} }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+/* ── TOKENS ─────────────────────────────────────── */
+const A   = '#00D4FF';
+const Am  = o => `rgba(0,212,255,${o})`;
+const BG  = '#030D18';
+const BG2 = '#071525';
+const mono = { fontFamily:"'Space Mono',monospace" };
+const grot = { fontFamily:"'Space Grotesk',sans-serif" };
+const gl   = (x={}) => ({ background:Am(0.04), border:`1px solid ${Am(0.12)}`, ...x });
+
+/* ── DATA ───────────────────────────────────────── */
+const SVC = [
+  { icon:'⬡', tag:'Shopify',  title:'Tienda Shopify',      desc:'Setup completo con diseño custom, apps integradas y todo configurado para vender desde el primer día.' },
+  { icon:'◎', tag:'Web',      title:'Landing / Sitio',     desc:'Páginas de alta conversión que proyectan autoridad y generan confianza real en tu audiencia.'          },
+  { icon:'◈', tag:'IA',       title:'Chatbot / Agente IA', desc:'Asistentes que atienden, califican leads y venden por ti las 24 horas, los 7 días de la semana.'       },
+  { icon:'◉', tag:'Retainer', title:'Retainer Mensual',    desc:'Soporte continuo, optimización y actualizaciones para que tu plataforma nunca falle.'                  },
+];
+
+const CASES = [
+  {
+    client:'Noix Studio', type:'Tienda Shopify', industry:'Moda',
+    metric:'$80K', mlabel:'ventas primer trimestre',
+    desc:'Tienda desde cero con diseño editorial, integración Klaviyo y checkout con A/B testing. Resultado: 3.8% tasa de conversión desde el primer mes.',
+    tags:['Shopify','Klaviyo','CRO'],
+  },
+  {
+    client:'Innova Supply', type:'Agente IA', industry:'B2B',
+    metric:'90%', mlabel:'consultas automatizadas',
+    desc:'Agente entrenado en catálogo, precios y políticas de la empresa. Integrado en WhatsApp Business y web. Ahorra 40+ horas mensuales de atención.',
+    tags:['OpenAI','WhatsApp','API'],
+  },
+  {
+    client:'Bloom Co.', type:'Landing + Retainer', industry:'Marketing',
+    metric:'-45%', mlabel:'costo por lead adquirido',
+    desc:'Landing de alta conversión construida sobre datos del cliente + retainer mensual de optimización CRO. Resultados sostenidos en el tiempo.',
+    tags:['Landing','SEO','Retainer'],
+  },
+];
+
+const PLANS = [
+  {
+    name:'Starter', price:'$999', sub:'Landing o tienda básica',
+    items:['Diseño personalizado','Hasta 5 páginas','SEO on-page','Formulario de contacto','14 días de soporte'],
+  },
+  {
+    name:'Growth', price:'$2,499', sub:'Proyecto completo + IA básica',
+    items:['Todo Starter','Apps + pasarelas de pago','Chatbot IA integrado','Analytics avanzado','30 días de soporte'],
+    top:true,
+  },
+  {
+    name:'Scale', price:'$4,999+', sub:'Enterprise + agente IA custom',
+    items:['Todo Growth','Agente IA entrenado a medida','Retainer mensual incluido','Reportes quincenales','Soporte prioritario 24/7'],
+  },
+];
+
+const STEPS = [
+  { n:'01', t:'Discovery',   d:'Entendemos tu negocio, objetivos, audiencia ideal y competencia antes de diseñar nada.'  },
+  { n:'02', t:'Diseño',      d:'Prototipo visual que apruebas tú antes de escribir una sola línea de código.'             },
+  { n:'03', t:'Desarrollo',  d:'Código limpio, optimizado y escalable. Sin atajos ni deudas técnicas que duelen después.' },
+  { n:'04', t:'Lanzamiento', d:'QA completo, deploy y entrega con soporte post-lanzamiento incluido en todos los planes.' },
+];
+
+const TESTI = [
+  { q:'Nuestra tienda pasó de cero a $80K en ventas el primer trimestre. Luis entregó a tiempo y el resultado superó todo lo que esperábamos.', a:'— Mariana G., fundadora · Noix Studio' },
+  { q:'El agente IA responde el 90% de las consultas solo. Ahorramos horas de atención cada semana. Lo recomiendo sin pensarlo dos veces.',      a:'— Carlos R., CEO · Innova Supply' },
+  { q:'Profesional, puntual y con un ojo increíble para el diseño. El retainer mensual vale cada peso. Seguimos trabajando juntos dos años después.', a:'— Sofía M., directora de marketing · Bloom Co.' },
+];
+
+const FAQS = [
+  { q:'¿Cuánto tiempo tarda un proyecto típico?',            a:'Un landing page toma 1–2 semanas. Una tienda Shopify completa, 2–4 semanas. Los proyectos con agente IA pueden tomar 4–6 semanas según la complejidad de los flujos.' },
+  { q:'¿Qué necesito para empezar?',                         a:'Solo una llamada de 30 minutos para entender tu negocio. Si ya tienes logo, paleta de colores e idea del proyecto, mejor. Si no, lo definimos juntos en el discovery.' },
+  { q:'¿Hay soporte después del lanzamiento?',               a:'Sí. Todos los planes incluyen soporte post-lanzamiento (14–30 días). Para soporte continuo, ofrezco retainers mensuales con tiempo de respuesta garantizado.' },
+  { q:'¿Puedo ver proyectos anteriores antes de contratar?', a:'Por supuesto. Durante la llamada de discovery comparto el portafolio completo con métricas reales de cada proyecto.' },
+  { q:'¿Con qué tipos de negocio trabajan?',                 a:'Moda, alimentos, servicios profesionales, salud, tecnología y más. Si vendes algo, puedo construir la plataforma para venderlo mejor.' },
+  { q:'¿Qué pasa si no quedo satisfecho?',                   a:'Trabajamos con revisiones incluidas. Si al finalizar algo no está a tu gusto dentro del alcance acordado, lo corregimos. El objetivo es que quedes 100% satisfecho.' },
+];
+
+const POSTS = [
+  { tag:'Shopify', read:'8 min', date:'May 2025', title:'Por qué tu tienda no convierte — y cómo arreglarlo hoy', desc:'Los 6 errores más comunes en tiendas Shopify y cómo cada uno está frenando tus ventas silenciosamente.' },
+  { tag:'IA',      read:'6 min', date:'Abr 2025', title:'Cómo un agente IA redujo nuestros costos de atención al 30%', desc:'El caso real de Innova Supply: del problema a la solución, con números, código y aprendizajes.' },
+  { tag:'Diseño',  read:'5 min', date:'Mar 2025', title:'5 errores de diseño que cuestan ventas', desc:'Pequeños detalles visuales que generan grandes diferencias en la percepción y confianza del usuario.' },
+];
+
+const STACK = ['Shopify','Next.js','OpenAI','Vercel','Stripe','Klaviyo','Tailwind','Webflow','Node.js','Postgres'];
+
+/* ── HELPERS ────────────────────────────────────── */
+function FadeIn({ children, delay=0, style={} }) {
+  const ref = useRef(null);
+  const [vis, setVis] = useState(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setVis(true); obs.disconnect(); }
+    }, { threshold: 0.1 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  return (
+    <div ref={ref} style={{
+      opacity: vis ? 1 : 0,
+      transform: vis ? 'translateY(0)' : 'translateY(22px)',
+      transition: `opacity .65s ${delay}s ease, transform .65s ${delay}s ease`,
+      ...style,
+    }}>{children}</div>
+  );
+}
+
+function SectionLabel({ children }) {
+  return <p style={{...mono, fontSize:11, color:A, letterSpacing:3, marginBottom:14}}>{children}</p>;
+}
+
+function SectionHead({ label, title }) {
+  return (
+    <FadeIn>
+      <div style={{ marginBottom:52 }}>
+        <SectionLabel>{label}</SectionLabel>
+        <h2 style={{...grot, fontSize:48, fontWeight:700, letterSpacing:'-1.5px', color:'#E8F4F8', textWrap:'pretty'}}>{title}</h2>
+      </div>
+    </FadeIn>
+  );
+}
+
+/* ── SCROLL PROGRESS ────────────────────────────── */
+function ScrollProgress() {
+  const [pct, setPct] = useState(0);
+  useEffect(() => {
+    const fn = () => {
+      const el = document.documentElement;
+      const tot = el.scrollHeight - el.clientHeight;
+      setPct(tot > 0 ? (el.scrollTop / tot) * 100 : 0);
+    };
+    window.addEventListener('scroll', fn, { passive:true });
+    return () => window.removeEventListener('scroll', fn);
+  }, []);
+  return (
+    <div style={{ position:'fixed', top:0, left:0, right:0, height:2, zIndex:200, background:Am(0.07) }}>
+      <div style={{ height:'100%', width:`${pct}%`, background:`linear-gradient(90deg,${Am(0)},${A})`, transition:'width .08s' }}/>
+    </div>
+  );
+}
+
+/* ── NAV ────────────────────────────────────────── */
+function Nav() {
+  const links = [['.servicios','#servicios'],['.casos','#casos'],['.precios','#precios'],['.blog','#blog'],['.faq','#faq']];
+  return (
+    <nav style={{
+      position:'sticky', top:0, zIndex:100,
+      padding:'18px 80px',
+      display:'flex', alignItems:'center', justifyContent:'space-between',
+      background:'rgba(3,13,24,0.9)', backdropFilter:'blur(20px)',
+      borderBottom:`1px solid ${Am(0.08)}`,
+    }}>
+      <a href="#top">
+        <span style={{...mono, fontSize:17, fontWeight:700, color:A, letterSpacing:2}}>BOLIVAR_SYS</span>
+      </a>
+      <div style={{ display:'flex', gap:32, color:Am(0.42), fontSize:13, ...mono }}>
+        {links.map(([l,h]) => (
+          <a key={l} href={h}
+            style={{ color:'inherit', transition:'color .15s' }}
+            onMouseEnter={e => e.target.style.color = A}
+            onMouseLeave={e => e.target.style.color = Am(0.42)}>{l}</a>
+        ))}
+      </div>
+      <a href="#contacto">
+        <button style={{
+          background:'transparent', border:`1px solid ${A}`, color:A,
+          padding:'9px 22px', borderRadius:6, fontSize:13, cursor:'pointer',
+          ...mono, letterSpacing:1, transition:'background .2s, box-shadow .2s',
+        }}
+          onMouseEnter={e => { e.currentTarget.style.background=Am(0.1); e.currentTarget.style.boxShadow=`0 0 20px ${Am(0.2)}`; }}
+          onMouseLeave={e => { e.currentTarget.style.background='transparent'; e.currentTarget.style.boxShadow='none'; }}>
+          CONTACTAR →
+        </button>
+      </a>
+    </nav>
+  );
+}
+
+/* ── HERO ───────────────────────────────────────── */
+function Hero() {
+  return (
+    <section id="top" data-screen-label="Hero" style={{
+      padding:'88px 80px 110px',
+      display:'grid', gridTemplateColumns:'1fr 460px', gap:72,
+      alignItems:'center', minHeight:'91vh',
+      position:'relative', overflow:'hidden',
+    }}>
+      {/* Grid */}
+      <div style={{
+        position:'absolute', inset:0,
+        backgroundImage:`linear-gradient(${Am(0.04)} 1px,transparent 1px),linear-gradient(90deg,${Am(0.04)} 1px,transparent 1px)`,
+        backgroundSize:'72px 72px', pointerEvents:'none',
+      }}/>
+      {/* Glow */}
+      <div style={{
+        position:'absolute', right:'26%', top:'46%', transform:'translateY(-50%)',
+        width:580, height:580, borderRadius:'50%',
+        background:`radial-gradient(circle,${Am(0.1)} 0%,transparent 65%)`,
+        pointerEvents:'none',
+      }}/>
+
+      {/* COPY */}
+      <div style={{ position:'relative' }}>
+        <div style={{...mono, fontSize:11, color:Am(0.55), letterSpacing:2, marginBottom:32, lineHeight:2.2}}>
+          <span>&gt; SISTEMA INICIADO</span><br/>
+          <span style={{ color:Am(0.28) }}>&gt; CARGANDO SERVICIOS...</span><br/>
+          <span style={{ color:'#22C55E' }}>&gt; LISTO&nbsp;
+            <span style={{ display:'inline-block', width:7, height:7, borderRadius:'50%', background:'#22C55E', verticalAlign:'middle', marginLeft:4, animation:'pulse 2s infinite' }}/>
+          </span>
+        </div>
+
+        <h1 style={{
+          ...grot, fontSize:78, fontWeight:700, lineHeight:1.01,
+          letterSpacing:'-2.5px', marginBottom:24, color:'#E8F4F8',
+          animation:'fadeUp .7s ease both', textWrap:'pretty',
+        }}>
+          Tecnología que<br/>Convierte Visitas<br/>
+          <span style={{ color:A }}>en Ventas.</span>
+        </h1>
+
+        <p style={{ fontSize:18, color:Am(0.5), lineHeight:1.85, maxWidth:490, marginBottom:44, animation:'fadeUp .7s .12s ease both' }}>
+          Shopify, landing pages, agentes IA y soporte mensual para emprendedores que entienden que el resultado lo es todo.
+        </p>
+
+        <div style={{ display:'flex', gap:14, marginBottom:60, animation:'fadeUp .7s .22s ease both', flexWrap:'wrap' }}>
+          <a href="#contacto">
+            <button style={{
+              background:A, border:'none', color:BG,
+              padding:'15px 38px', borderRadius:6, fontSize:15,
+              cursor:'pointer', ...grot, fontWeight:700,
+              boxShadow:`0 0 36px ${Am(0.3)}`, transition:'box-shadow .2s',
+            }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = `0 0 60px ${Am(0.52)}`}
+              onMouseLeave={e => e.currentTarget.style.boxShadow = `0 0 36px ${Am(0.3)}`}>
+              Iniciar Proyecto →
+            </button>
+          </a>
+          <a href="#servicios">
+            <button style={{
+              background:'transparent', border:`1px solid ${Am(0.3)}`, color:A,
+              padding:'15px 38px', borderRadius:6, fontSize:15, cursor:'pointer', ...grot,
+              transition:'border-color .2s',
+            }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = Am(0.6)}
+              onMouseLeave={e => e.currentTarget.style.borderColor = Am(0.3)}>
+              Ver Servicios
+            </button>
+          </a>
+        </div>
+
+        <div style={{ display:'flex', gap:14, flexWrap:'wrap', animation:'fadeUp .7s .34s ease both' }}>
+          {[['20+','proyectos'],['4.9★','rating'],['100%','entrega puntual'],['IA','integrada']].map(([v,l]) => (
+            <div key={l} style={{...gl({ borderRadius:12 }), padding:'13px 22px', textAlign:'center' }}>
+              <div style={{...mono, fontSize:18, color:A, fontWeight:700}}>{v}</div>
+              <div style={{ fontSize:11, color:Am(0.38), marginTop:3 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* TERMINAL */}
+      <div style={{
+        ...gl({ borderRadius:14, overflow:'hidden' }),
+        ...mono, fontSize:13, lineHeight:2.1,
+        animation:'fadeUp .7s .18s ease both',
+        boxShadow:`0 0 64px ${Am(0.07)}, 0 24px 80px rgba(0,0,0,.5)`,
+      }}>
+        <div style={{ background:'#071F35', padding:'13px 18px', borderBottom:`1px solid ${Am(0.1)}`, display:'flex', alignItems:'center', gap:8 }}>
+          {['#FF5F57','#FEBC2E','#28C840'].map(c => (
+            <span key={c} style={{ width:11, height:11, borderRadius:'50%', background:c, display:'inline-block' }}/>
+          ))}
+          <span style={{ marginLeft:8, color:Am(0.28), fontSize:11 }}>bolivar-sys.sh</span>
+        </div>
+        <div style={{ padding:'26px 30px' }}>
+          <div style={{ color:Am(0.55) }}>$ <span style={{ color:A }}>bolivar</span> --services</div>
+          <div style={{ color:Am(0.28) }}># Servicios disponibles:</div>
+          {SVC.map(s => (
+            <div key={s.tag}>
+              <span style={{ color:'#22C55E' }}>✓ </span>
+              <span style={{ color:'#E8F4F8' }}>{s.tag.toLowerCase()}</span>
+              <span style={{ color:Am(0.28) }}> --activo</span>
+            </div>
+          ))}
+          <div style={{ marginTop:10, color:Am(0.55) }}>$ <span style={{ color:A }}>status</span> --check</div>
+          <div style={{ color:'#22C55E' }}>✓ on-time: 100% &nbsp;·&nbsp; rating: 4.9/5</div>
+          <div style={{ marginTop:4, color:Am(0.55) }}>$&nbsp;<span style={{ color:A, animation:'blink 1s step-end infinite', display:'inline-block' }}>█</span></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── STACK STRIP ────────────────────────────────── */
+function StackStrip() {
+  return (
+    <div style={{ borderTop:`1px solid ${Am(0.07)}`, borderBottom:`1px solid ${Am(0.07)}`, padding:'16px 80px', background:BG2, display:'flex', alignItems:'center', gap:12, flexWrap:'wrap' }}>
+      <span style={{...mono, fontSize:10, color:Am(0.28), letterSpacing:2, flexShrink:0 }}>STACK //</span>
+      {STACK.map(s => (
+        <div key={s} style={{...gl({ borderRadius:6 }), padding:'5px 14px', ...mono, fontSize:12, color:Am(0.52)}}>{s}</div>
+      ))}
+    </div>
+  );
+}
+
+/* ── SERVICES ───────────────────────────────────── */
+function Services() {
+  return (
+    <section id="servicios" data-screen-label="Servicios" style={{ padding:'80px', borderTop:`1px solid ${Am(0.07)}` }}>
+      <SectionHead label="&gt; SERVICIOS.LIST()" title="Qué construimos"/>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:18 }}>
+        {SVC.map((s,i) => (
+          <FadeIn key={s.title} delay={i*0.09} style={{ display:'flex' }}>
+            <div style={{...gl({ borderRadius:16 }), padding:'30px 24px', flex:1, transition:'border-color .22s,background .22s', cursor:'default' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor=Am(0.32); e.currentTarget.style.background=Am(0.08); }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor=Am(0.12); e.currentTarget.style.background=Am(0.04); }}>
+              <div style={{...mono, fontSize:10, color:A, marginBottom:14, letterSpacing:1}}>[{s.tag}]</div>
+              <div style={{ fontSize:24, marginBottom:14, color:A }}>{s.icon}</div>
+              <h3 style={{ fontSize:18, fontWeight:700, marginBottom:10, lineHeight:1.3, color:'#E8F4F8' }}>{s.title}</h3>
+              <p style={{ color:Am(0.5), fontSize:14, lineHeight:1.75 }}>{s.desc}</p>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── PROCESS ────────────────────────────────────── */
+function Process() {
+  return (
+    <section id="proceso" data-screen-label="Proceso" style={{ padding:'80px', background:BG2, borderTop:`1px solid ${Am(0.07)}` }}>
+      <SectionHead label="&gt; PROCESO.EXEC()" title="Del brief al lanzamiento"/>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:18 }}>
+        {STEPS.map((s,i) => (
+          <FadeIn key={s.n} delay={i*0.1} style={{ display:'flex' }}>
+            <div style={{...gl({ borderRadius:16 }), padding:'28px 24px', flex:1, position:'relative' }}>
+              {i < STEPS.length-1 && (
+                <div style={{ position:'absolute', right:-10, top:36, width:20, height:1, background:Am(0.18) }}/>
+              )}
+              <div style={{...mono, fontSize:52, color:Am(0.07), fontWeight:700, lineHeight:1, marginBottom:20, letterSpacing:'-2px' }}>{s.n}</div>
+              <h3 style={{ fontSize:20, fontWeight:700, marginBottom:10, color:'#E8F4F8' }}>{s.t}</h3>
+              <p style={{ color:Am(0.5), fontSize:14, lineHeight:1.75 }}>{s.d}</p>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── CASES ──────────────────────────────────────── */
+function Cases() {
+  return (
+    <section id="casos" data-screen-label="Casos" style={{ padding:'80px', borderTop:`1px solid ${Am(0.07)}` }}>
+      <SectionHead label="&gt; CASES.FEATURED()" title="Resultados reales"/>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20 }}>
+        {CASES.map((c,i) => (
+          <FadeIn key={c.client} delay={i*0.11} style={{ display:'flex' }}>
+            <div style={{...gl({ borderRadius:20 }), padding:'36px 30px', flex:1, display:'flex', flexDirection:'column', transition:'border-color .22s,background .22s', cursor:'default' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor=Am(0.3); e.currentTarget.style.background=Am(0.07); }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor=Am(0.12); e.currentTarget.style.background=Am(0.04); }}>
+              <div style={{...mono, fontSize:10, color:A, letterSpacing:2, marginBottom:18 }}>[{c.industry.toUpperCase()}]</div>
+              <div style={{ fontSize:58, fontWeight:700, color:A, ...grot, letterSpacing:'-2px', lineHeight:1, marginBottom:4 }}>{c.metric}</div>
+              <div style={{...mono, fontSize:12, color:Am(0.42), marginBottom:24 }}>{c.mlabel}</div>
+              <div style={{ height:1, background:Am(0.08), marginBottom:22 }}/>
+              <div style={{ fontSize:19, fontWeight:700, color:'#E8F4F8', marginBottom:4 }}>{c.client}</div>
+              <div style={{...mono, fontSize:11, color:A, marginBottom:12 }}>{c.type}</div>
+              <p style={{ color:Am(0.5), fontSize:14, lineHeight:1.75, flex:1, marginBottom:22 }}>{c.desc}</p>
+              <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                {c.tags.map(t => (
+                  <span key={t} style={{...gl({ borderRadius:6 }), padding:'4px 12px', ...mono, fontSize:11, color:Am(0.52) }}>{t}</span>
+                ))}
+              </div>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── PRICING ────────────────────────────────────── */
+function Pricing() {
+  return (
+    <section id="precios" data-screen-label="Precios" style={{ padding:'80px', background:BG2, borderTop:`1px solid ${Am(0.07)}` }}>
+      <SectionHead label="&gt; PRICING.GET()" title="Inversión clara"/>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20, maxWidth:940, margin:'0 auto' }}>
+        {PLANS.map((p,i) => (
+          <FadeIn key={p.name} delay={i*0.1} style={{ display:'flex' }}>
+            <div style={{
+              ...gl({
+                borderRadius:20,
+                background:p.top ? Am(0.08) : Am(0.03),
+                border:p.top ? `1px solid ${Am(0.38)}` : `1px solid ${Am(0.1)}`,
+                boxShadow:p.top ? `0 0 52px ${Am(0.1)}` : 'none',
+              }),
+              padding:'36px 28px', position:'relative', flex:1, display:'flex', flexDirection:'column',
+            }}>
+              {p.top && (
+                <div style={{ position:'absolute', top:-12, right:20, background:A, color:BG, ...mono, fontSize:10, padding:'4px 14px', borderRadius:6, fontWeight:700, letterSpacing:1 }}>POPULAR</div>
+              )}
+              <div style={{...mono, fontSize:11, color:A, marginBottom:10, letterSpacing:1 }}>[{p.name.toLowerCase()}]</div>
+              <div style={{ fontSize:44, fontWeight:700, color:p.top ? A : '#E8F4F8', marginBottom:4, ...grot, letterSpacing:'-1px' }}>{p.price}</div>
+              <div style={{...mono, fontSize:12, color:Am(0.38), marginBottom:24 }}>{p.sub}</div>
+              <div style={{ display:'flex', flexDirection:'column', gap:10, flex:1 }}>
+                {p.items.map(item => (
+                  <div key={item} style={{ display:'flex', gap:9, fontSize:14, color:Am(0.68), alignItems:'flex-start' }}>
+                    <span style={{ color:A, flexShrink:0 }}>→</span>{item}
+                  </div>
+                ))}
+              </div>
+              <a href="#contacto">
+                <button style={{
+                  width:'100%', marginTop:28, padding:'13px',
+                  background:p.top ? A : 'transparent',
+                  border:p.top ? 'none' : `1px solid ${Am(0.25)}`,
+                  color:p.top ? BG : A,
+                  borderRadius:8, fontSize:13, cursor:'pointer',
+                  ...mono, fontWeight:700, letterSpacing:.5,
+                  transition:'opacity .15s',
+                }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '.8'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+                  SELECCIONAR →
+                </button>
+              </a>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── PERSONAL / VIDEO ───────────────────────────── */
+function VideoSection() {
+  return (
+    <section data-screen-label="Intro personal" style={{ padding:'88px 80px', borderTop:`1px solid ${Am(0.07)}` }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:80, alignItems:'center', maxWidth:1100, margin:'0 auto' }}>
+        <FadeIn>
+          <div>
+            <SectionLabel>&gt; LUIS.INTRO()</SectionLabel>
+            <h2 style={{...grot, fontSize:52, fontWeight:700, lineHeight:1.05, letterSpacing:'-1.5px', color:'#E8F4F8', marginBottom:22, textWrap:'pretty' }}>
+              Hola, soy Luis.<br/>Construyo sistemas<br/>que venden.
+            </h2>
+            <p style={{ fontSize:16, color:Am(0.5), lineHeight:1.85, marginBottom:36 }}>
+              Más de 3 años construyendo plataformas digitales para emprendedores en Latinoamérica. No solo código — estrategia, diseño y resultados medibles con cada proyecto.
+            </p>
+            <div style={{ display:'flex', gap:40, marginBottom:36 }}>
+              {[['20+','Proyectos'],['3+','Años'],['4.9','Calificación promedio']].map(([v,l]) => (
+                <div key={l}>
+                  <div style={{...mono, fontSize:28, color:A, fontWeight:700}}>{v}</div>
+                  <div style={{ fontSize:12, color:Am(0.38), marginTop:3 }}>{l}</div>
+                </div>
+              ))}
+            </div>
+            <a href="#contacto">
+              <button style={{
+                background:'transparent', border:`1px solid ${Am(0.3)}`, color:A,
+                padding:'13px 30px', borderRadius:6, fontSize:14, cursor:'pointer',
+                ...mono, letterSpacing:1, transition:'border-color .2s, background .2s',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor=Am(0.6); e.currentTarget.style.background=Am(0.08); }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor=Am(0.3); e.currentTarget.style.background='transparent'; }}>
+                AGENDAR LLAMADA →
+              </button>
+            </a>
+          </div>
+        </FadeIn>
+        <FadeIn delay={0.15}>
+          <div style={{
+            ...gl({ borderRadius:20, overflow:'hidden', boxShadow:`0 0 64px ${Am(0.07)}` }),
+            aspectRatio:'16/9', position:'relative', cursor:'pointer',
+            transition:'box-shadow .3s',
+          }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = `0 0 80px ${Am(0.2)}`}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = `0 0 64px ${Am(0.07)}`}>
+            <div style={{ position:'absolute', inset:0, backgroundImage:`repeating-linear-gradient(45deg,${Am(0.04)} 0px,${Am(0.04)} 1px,transparent 1px,transparent 14px)` }}/>
+            <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:18 }}>
+              <div style={{
+                width:68, height:68, borderRadius:'50%', border:`2px solid ${A}`,
+                display:'flex', alignItems:'center', justifyContent:'center',
+                boxShadow:`0 0 32px ${Am(0.35)}`, animation:'glowin 3s ease-in-out infinite',
+              }}>
+                <span style={{ color:A, fontSize:22, marginLeft:5 }}>▶</span>
+              </div>
+              <span style={{...mono, fontSize:11, color:Am(0.42), letterSpacing:2 }}>VIDEO DE PRESENTACIÓN</span>
+            </div>
+          </div>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
+/* ── TESTIMONIALS ───────────────────────────────── */
+function Testimonials() {
+  return (
+    <section data-screen-label="Testimonios" style={{ padding:'80px', background:BG2, borderTop:`1px solid ${Am(0.07)}` }}>
+      <SectionHead label="&gt; TESTIMONIOS.LOG()" title={<>Clientes reales,<br/>resultados reales.</>}/>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:18 }}>
+        {TESTI.map((t,i) => (
+          <FadeIn key={i} delay={i*0.1} style={{ display:'flex' }}>
+            <div style={{...gl({ borderRadius:16 }), padding:'32px 28px', flex:1 }}>
+              <div style={{...mono, fontSize:42, color:Am(0.15), lineHeight:.8, marginBottom:18 }}>"</div>
+              <p style={{ color:Am(0.72), fontSize:15, lineHeight:1.85, marginBottom:24 }}>{t.q}</p>
+              <p style={{...mono, color:Am(0.38), fontSize:11 }}>{t.a}</p>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── FAQ ────────────────────────────────────────── */
+function FAQ() {
+  const [open, setOpen] = useState(null);
+  return (
+    <section id="faq" data-screen-label="FAQ" style={{ padding:'80px', borderTop:`1px solid ${Am(0.07)}` }}>
+      <SectionHead label="&gt; FAQ.QUERY()" title="Preguntas frecuentes"/>
+      <div style={{ maxWidth:800, display:'flex', flexDirection:'column', gap:10 }}>
+        {FAQS.map((f,i) => (
+          <FadeIn key={i} delay={i*0.05}>
+            <div style={{
+              ...gl({ borderRadius:12, borderColor: open===i ? Am(0.3) : Am(0.12), transition:'border-color .2s' }),
+              overflow:'hidden',
+            }}>
+              <button onClick={() => setOpen(open===i ? null : i)} style={{
+                width:'100%', background:'none', border:'none', padding:'20px 24px',
+                display:'flex', alignItems:'center', justifyContent:'space-between',
+                cursor:'pointer', textAlign:'left', gap:16,
+              }}>
+                <span style={{ fontSize:16, fontWeight:600, color:'#E8F4F8', ...grot }}>{f.q}</span>
+                <span style={{
+                  ...mono, color:A, fontSize:20, flexShrink:0,
+                  transition:'transform .25s', transform: open===i ? 'rotate(45deg)' : 'none',
+                  display:'inline-block',
+                }}>+</span>
+              </button>
+              <div style={{ maxHeight: open===i ? 220 : 0, overflow:'hidden', transition:'max-height .32s ease' }}>
+                <p style={{ padding:'0 24px 22px', color:Am(0.55), fontSize:15, lineHeight:1.85 }}>{f.a}</p>
+              </div>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── BLOG ───────────────────────────────────────── */
+function Blog() {
+  return (
+    <section id="blog" data-screen-label="Blog" style={{ padding:'80px', background:BG2, borderTop:`1px solid ${Am(0.07)}` }}>
+      <FadeIn>
+        <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom:52, flexWrap:'wrap', gap:20 }}>
+          <div>
+            <SectionLabel>&gt; BLOG.LATEST()</SectionLabel>
+            <h2 style={{...grot, fontSize:48, fontWeight:700, letterSpacing:'-1.5px', color:'#E8F4F8' }}>Últimos artículos</h2>
+          </div>
+          <a href="#" style={{...mono, fontSize:12, color:A, letterSpacing:1, transition:'opacity .15s' }}
+            onMouseEnter={e => e.target.style.opacity = '.6'}
+            onMouseLeave={e => e.target.style.opacity = '1'}>
+            VER TODOS →
+          </a>
+        </div>
+      </FadeIn>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20 }}>
+        {POSTS.map((p,i) => (
+          <FadeIn key={p.title} delay={i*0.1} style={{ display:'flex' }}>
+            <div style={{...gl({ borderRadius:16 }), padding:'30px 26px', flex:1, display:'flex', flexDirection:'column', cursor:'pointer', transition:'border-color .22s,background .22s' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor=Am(0.3); e.currentTarget.style.background=Am(0.07); }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor=Am(0.12); e.currentTarget.style.background=Am(0.04); }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20 }}>
+                <span style={{...gl({ borderRadius:6 }), padding:'4px 12px', ...mono, fontSize:10, color:A, letterSpacing:1}}>{p.tag.toUpperCase()}</span>
+                <span style={{...mono, fontSize:11, color:Am(0.32) }}>{p.read} read</span>
+              </div>
+              <h3 style={{ fontSize:18, fontWeight:700, lineHeight:1.4, color:'#E8F4F8', marginBottom:14, flex:1 }}>{p.title}</h3>
+              <p style={{ color:Am(0.5), fontSize:14, lineHeight:1.7, marginBottom:22 }}>{p.desc}</p>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                <span style={{...mono, fontSize:11, color:Am(0.32) }}>{p.date}</span>
+                <span style={{...mono, fontSize:12, color:A }}>LEER →</span>
+              </div>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── CONTACT ────────────────────────────────────── */
+function Contact() {
+  const iS = {
+    background:Am(0.04), border:`1px solid ${Am(0.15)}`,
+    color:'#E8F4F8', padding:'14px 18px', borderRadius:8,
+    fontSize:13, ...mono, outline:'none', width:'100%', display:'block',
+    transition:'border-color .2s',
+  };
+  const focus = e => e.target.style.borderColor = Am(0.48);
+  const blur  = e => e.target.style.borderColor = Am(0.15);
+  return (
+    <section id="contacto" data-screen-label="Contacto" style={{ padding:'88px 80px', borderTop:`1px solid ${Am(0.07)}` }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:80, alignItems:'start', maxWidth:1100, margin:'0 auto' }}>
+        <FadeIn>
+          <div>
+            <SectionLabel>&gt; CONTACT.INIT()</SectionLabel>
+            <h2 style={{...grot, fontSize:56, fontWeight:700, lineHeight:1.0, letterSpacing:'-2px', color:'#E8F4F8', marginBottom:22 }}>
+              Hablemos de<br/>tu proyecto.
+            </h2>
+            <p style={{ fontSize:16, color:Am(0.5), lineHeight:1.85, marginBottom:40 }}>
+              Respondo en menos de 24h. Sin compromisos, sin rodeos — solo una conversación honesta sobre lo que necesita tu negocio.
+            </p>
+            <div style={{ display:'flex', flexDirection:'column', gap:14, marginBottom:44 }}>
+              {[
+                'Trabajo con clientes en toda Latinoamérica',
+                'Primera consulta gratuita de 30 minutos',
+                'Contrato claro, precios 100% transparentes',
+              ].map(txt => (
+                <div key={txt} style={{ display:'flex', gap:12, alignItems:'center', color:Am(0.5), fontSize:15 }}>
+                  <span style={{ color:A, ...mono }}>→</span><span>{txt}</span>
+                </div>
+              ))}
+            </div>
+            {/* Contact chips */}
+            <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
+              {[['luis@bolivarsys.com'],['WhatsApp disponible'],['GMT-5 · LATAM']].map(([t]) => (
+                <div key={t} style={{...gl({ borderRadius:8 }), padding:'8px 16px', ...mono, fontSize:12, color:Am(0.5) }}>{t}</div>
+              ))}
+            </div>
+          </div>
+        </FadeIn>
+        <FadeIn delay={0.15}>
+          <form style={{ display:'flex', flexDirection:'column', gap:14 }} onSubmit={e => e.preventDefault()}>
+            <input placeholder="nombre" style={iS} onFocus={focus} onBlur={blur}/>
+            <input placeholder="email" style={iS} onFocus={focus} onBlur={blur}/>
+            <input placeholder="tipo de proyecto  (shopify · landing · ia · retainer)" style={iS} onFocus={focus} onBlur={blur}/>
+            <textarea placeholder="cuéntame sobre tu negocio y qué quieres lograr" rows={4} style={{...iS, resize:'none'}} onFocus={focus} onBlur={blur}/>
+            <button type="submit" style={{
+              background:A, border:'none', color:BG,
+              padding:'15px', borderRadius:8, fontSize:15, cursor:'pointer',
+              ...grot, fontWeight:700, letterSpacing:.5,
+              boxShadow:`0 0 32px ${Am(0.28)}`, transition:'box-shadow .2s',
+            }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = `0 0 56px ${Am(0.48)}`}
+              onMouseLeave={e => e.currentTarget.style.boxShadow = `0 0 32px ${Am(0.28)}`}>
+              ENVIAR MENSAJE →
+            </button>
+            <p style={{...mono, fontSize:11, color:Am(0.3), textAlign:'center' }}>Respuesta garantizada en &lt; 24 horas</p>
+          </form>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
+/* ── FOOTER ─────────────────────────────────────── */
+function Footer() {
+  const cols = [
+    { h:'Servicios', ls:['Tienda Shopify','Landing / Sitio','Chatbot IA','Retainer Mensual'] },
+    { h:'Empresa',   ls:['Sobre Luis','Casos de éxito','Blog','Proceso de trabajo'] },
+    { h:'Legal',     ls:['Política de privacidad','Términos de servicio','Cookies'] },
+  ];
+  return (
+    <footer style={{ borderTop:`1px solid ${Am(0.08)}`, background:BG2 }}>
+      <div style={{ padding:'60px 80px', display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr', gap:60 }}>
+        <div>
+          <span style={{...mono, fontSize:18, color:A, fontWeight:700, letterSpacing:2, display:'block', marginBottom:14 }}>BOLIVAR_SYS</span>
+          <p style={{ color:Am(0.42), fontSize:14, lineHeight:1.85, maxWidth:280, marginBottom:28 }}>
+            Diseño, desarrollo e inteligencia artificial para emprendedores que quieren vender más, trabajar menos y escalar sin límites.
+          </p>
+          <div style={{ display:'flex', gap:8 }}>
+            {[['LI','LinkedIn'],['TW','Twitter/X'],['IG','Instagram']].map(([s,title]) => (
+              <div key={s} title={title} style={{...gl({ borderRadius:8 }), width:36, height:36, display:'flex', alignItems:'center', justifyContent:'center', ...mono, fontSize:11, color:Am(0.5), cursor:'pointer', transition:'border-color .2s,color .2s' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor=Am(0.38); e.currentTarget.style.color=A; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor=Am(0.12); e.currentTarget.style.color=Am(0.5); }}>
+                {s}
+              </div>
+            ))}
+          </div>
+        </div>
+        {cols.map(c => (
+          <div key={c.h}>
+            <p style={{...mono, fontSize:10, color:A, letterSpacing:2, marginBottom:18 }}>{c.h.toUpperCase()}</p>
+            <div style={{ display:'flex', flexDirection:'column', gap:11 }}>
+              {c.ls.map(l => (
+                <a key={l} href="#" style={{ color:Am(0.42), fontSize:14, transition:'color .15s' }}
+                  onMouseEnter={e => e.target.style.color = '#E8F4F8'}
+                  onMouseLeave={e => e.target.style.color = Am(0.42)}>{l}</a>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{
+        padding:'20px 80px', borderTop:`1px solid ${Am(0.06)}`,
+        display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:12,
+      }}>
+        <span style={{...mono, fontSize:12, color:Am(0.22) }}>© 2025 · LUIS_BOLIVAR · TODOS LOS DERECHOS RESERVADOS</span>
+        <div style={{ display:'flex', gap:24, ...mono, fontSize:12, color:Am(0.22) }}>
+          {['Privacidad','Términos','Cookies'].map(l => (
+            <a key={l} href="#" style={{ color:'inherit', transition:'color .15s' }}
+              onMouseEnter={e => e.target.style.color = A}
+              onMouseLeave={e => e.target.style.color = Am(0.22)}>{l}</a>
+          ))}
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ── APP ────────────────────────────────────────── */
+function App() {
+  return (
+    <div style={{...grot, background:BG, color:'#E8F4F8', minHeight:'100vh' }}>
+      <ScrollProgress/>
+      <Nav/>
+      <Hero/>
+      <StackStrip/>
+      <Services/>
+      <Process/>
+      <Cases/>
+      <Pricing/>
+      <VideoSection/>
+      <Testimonials/>
+      <FAQ/>
+      <Blog/>
+      <Contact/>
+      <Footer/>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

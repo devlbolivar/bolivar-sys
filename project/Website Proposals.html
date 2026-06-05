@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>6 Propuestas Web — Bolivar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=Montserrat:wght@300;400;600&family=Anton&family=Barlow:wght@400;700;900&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    @keyframes fadeUp   { from { transform:translateY(28px) } to { transform:translateY(0) } }
+    @keyframes float    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-18px)} }
+    @keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:.3} }
+    @keyframes blink    { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    .sel-bar {
+      position:fixed; top:0; left:0; right:0; z-index:9999;
+      background:#090909; border-bottom:1px solid #1c1c1c;
+      display:flex; align-items:center; gap:5px; padding:9px 18px;
+      overflow-x:auto; scrollbar-width:none;
+    }
+    .sel-bar::-webkit-scrollbar { display:none }
+    .sel-lbl {
+      color:#2a2a2a; font-size:10px;
+      font-family:'Space Mono',monospace;
+      margin-right:4px; white-space:nowrap; flex-shrink:0;
+    }
+    .sel-btn {
+      background:none; border:1px solid #252525; color:#4a4a4a;
+      padding:5px 12px; border-radius:6px; cursor:pointer;
+      font-size:11px; font-family:'Space Mono',monospace;
+      white-space:nowrap; transition:all .18s;
+      display:flex; align-items:center; gap:6px;
+    }
+    .sel-btn:hover { border-color:#3d3d3d; color:#777 }
+    .sel-btn.on    { border-color:#fff; color:#fff; background:#1a1a1a }
+    .dot { width:7px; height:7px; border-radius:50%; flex-shrink:0 }
+    .pv  { margin-top:44px }
+    input::placeholder, textarea::placeholder { opacity:.45 }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- ═══════════════════════════════════════════
+     BLOCK 1 — Shared data + helpers
+═══════════════════════════════════════════ -->
+<script type="text/babel">
+const SVC = [
+  { icon:'⬡', tag:'Shopify',  title:'Tienda Shopify Completa',      desc:'Setup completo con diseño custom, apps integradas y todo configurado para vender desde el primer día.'  },
+  { icon:'◎', tag:'Web',      title:'Landing / Sitio Corporativo',  desc:'Páginas de alta conversión y presencia corporativa que proyectan autoridad y generan confianza real.'   },
+  { icon:'◈', tag:'IA',       title:'Chatbot / Agente IA',           desc:'Asistentes inteligentes que atienden, califican leads y venden por ti las 24 horas del día.'            },
+  { icon:'◉', tag:'Retainer', title:'Retainer Mensual',              desc:'Gestión continua: actualizaciones, optimización y soporte técnico para que nada falle nunca.'           },
+];
+const PLANS = [
+  { name:'Starter', price:'$999',    sub:'Landing page o tienda básica',   items:['Diseño personalizado','Hasta 5 páginas','SEO on-page','Formulario de contacto','14 días de soporte'] },
+  { name:'Growth',  price:'$2,499',  sub:'Proyecto completo + IA básica',  items:['Todo Starter','Apps + pasarelas de pago','Chatbot IA integrado','Analytics avanzado','30 días de soporte'], top:true },
+  { name:'Scale',   price:'$4,999+', sub:'Enterprise con agente IA custom',items:['Todo Growth','Agente IA entrenado','Retainer mensual incluido','Reportes quincenales','Soporte prioritario'] },
+];
+const STEPS = [
+  { n:'01', t:'Discovery',   d:'Entendemos tu negocio, objetivos y audiencia ideal.' },
+  { n:'02', t:'Diseño',      d:'Prototipo visual que apruebas tú antes de codificar.' },
+  { n:'03', t:'Desarrollo',  d:'Código limpio, optimizado y sin atajos ni deudas técnicas.' },
+  { n:'04', t:'Lanzamiento', d:'QA completo, deploy y entrega con soporte incluido.' },
+];
+const TESTI = [
+  { q:'"Nuestra tienda pasó de cero a 80k en ventas el primer trimestre. Luis entregó a tiempo y el resultado fue mejor de lo esperado."', a:'— Mariana G., fundadora de Noix Studio'       },
+  { q:'"El agente IA responde el 90% de las consultas solo. Ahorramos horas de atención al cliente cada semana. Totalmente recomendado."', a:'— Carlos R., CEO de Innova Supply'            },
+  { q:'"Profesional, puntual y con un ojo increíble para el diseño. El retainer mensual vale cada peso que pagamos. Seguimos juntos."',   a:'— Sofía M., directora de marketing, Bloom Co.' },
+];
+const Inp = ({ph,multi,s}) => multi
+  ? <textarea placeholder={ph} rows={3} style={s} />
+  : <input    placeholder={ph}          style={s} />;
+
+Object.assign(window,{SVC,PLANS,STEPS,TESTI,Inp});
+</script>
+
+<!-- ═══════════════════════════════════════════
+     BLOCK 2 — P1 Noir Premium · P2 Arctic Neural · P3 Obsidian Gold
+═══════════════════════════════════════════ -->
+<script type="text/babel">
+const {SVC,PLANS,STEPS,TESTI,Inp} = window;
+
+/* ─────────────── P1 NOIR PREMIUM ─────────────── */
+function P1(){
+  const A='#8B5CF6', Am='rgba(139,92,246,';
+  const h1={fontFamily:"'Playfair Display',serif"};
+  const bd={fontFamily:"'DM Sans',sans-serif"};
+  const iS={background:`${Am}0.06)`,border:`1px solid ${Am}0.16)`,color:'#F0EEF8',padding:'13px 18px',borderRadius:8,fontSize:14,...bd,outline:'none',width:'100%',display:'block'};
+  return (
+  <div style={{...bd,background:'#07070C',color:'#F0EEF8'}}>
+    {/* NAV */}
+    <nav style={{padding:'22px 80px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:`1px solid ${Am}0.1)`}}>
+      <span style={{...h1,fontSize:26,fontWeight:900,letterSpacing:'-1px'}}>Bolivar<span style={{color:A}}>.</span></span>
+      <div style={{display:'flex',gap:36,color:'#9B97B0',fontSize:14}}>
+        {['Servicios','Proceso','Precios','Blog'].map(l=><a key={l} style={{color:'inherit',textDecoration:'none',cursor:'pointer'}}>{l}</a>)}
+      </div>
+      <button style={{background:`linear-gradient(135deg,${A},#6D28D9)`,border:'none',color:'#fff',padding:'10px 24px',borderRadius:6,fontSize:14,cursor:'pointer',...bd,fontWeight:500}}>Contactar →</button>
+    </nav>
+
+    {/* HERO */}
+    <section style={{padding:'100px 80px',position:'relative',overflow:'hidden',display:'flex',alignItems:'center',gap:80,minHeight:'92vh'}}>
+      <div style={{position:'absolute',inset:0,backgroundImage:`linear-gradient(${Am}0.04) 1px,transparent 1px),linear-gradient(90deg,${Am}0.04) 1px,transparent 1px)`,backgroundSize:'80px 80px',pointerEvents:'none'}}/>
+      <div style={{position:'absolute',right:'8%',top:'50%',transform:'translateY(-50%)',width:580,height:580,borderRadius:'50%',background:`radial-gradient(circle,${Am}0.18) 0%,transparent 65%)`,pointerEvents:'none'}}/>
+      <div style={{position:'relative',flex:1,maxWidth:640}}>
+        <div style={{display:'inline-flex',alignItems:'center',gap:8,background:`${Am}0.1)`,border:`1px solid ${Am}0.25)`,padding:'6px 16px',borderRadius:100,marginBottom:32,fontSize:12,color:'#A78BFA',letterSpacing:1.5}}>
+          <span style={{width:6,height:6,borderRadius:'50%',background:A,display:'inline-block',animation:'pulse 2s infinite'}}/>
+          SERVICIOS DIGITALES PREMIUM
+        </div>
+        <h1 style={{...h1,fontSize:92,fontWeight:900,lineHeight:0.95,letterSpacing:'-3px',marginBottom:28,animation:'fadeUp .8s ease forwards'}}>
+          Tu Tienda,<br/><em style={{color:A,fontStyle:'italic'}}>Tu Imperio.</em>
+        </h1>
+        <p style={{fontSize:18,color:'#9B97B0',lineHeight:1.75,maxWidth:500,marginBottom:48,animation:'fadeUp .8s .15s ease forwards'}}>
+          Diseño, desarrollo e IA para emprendedores que quieren vender más, trabajar menos y escalar sin límites.
+        </p>
+        <div style={{display:'flex',gap:16,flexWrap:'wrap',animation:'fadeUp .8s .3s ease forwards'}}>
+          <button style={{background:`linear-gradient(135deg,${A},#6D28D9)`,border:'none',color:'#fff',padding:'15px 36px',borderRadius:6,fontSize:16,cursor:'pointer',...bd,fontWeight:500}}>Iniciar Proyecto →</button>
+          <button style={{background:'transparent',border:`1px solid ${Am}0.3)`,color:'#A78BFA',padding:'15px 36px',borderRadius:6,fontSize:16,cursor:'pointer',...bd}}>Ver Servicios</button>
+        </div>
+        <div style={{display:'flex',gap:40,marginTop:60,paddingTop:40,borderTop:`1px solid ${Am}0.1)`}}>
+          {[['20+','Proyectos'],['4.9★','Rating'],['100%','Entrega']].map(([v,l])=>(
+            <div key={l}><div style={{...h1,fontSize:34,fontWeight:700,color:'#A78BFA'}}>{v}</div><div style={{fontSize:13,color:'#9B97B0'}}>{l}</div></div>
+          ))}
+        </div>
+      </div>
+      <div style={{flex:'0 0 380px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,animation:'float 7s ease-in-out infinite'}}>
+        {SVC.map(s=>(
+          <div key={s.tag} style={{background:`${Am}0.05)`,border:`1px solid ${Am}0.13)`,borderRadius:12,padding:'28px 20px',textAlign:'center'}}>
+            <div style={{fontSize:26,color:A,marginBottom:8}}>{s.icon}</div>
+            <div style={{fontSize:13,color:'#C4BEDD',fontWeight:500}}>{s.tag}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    {/* SERVICES */}
+    <section style={{padding:'80px',background:'#0D0D18'}}>
+      <div style={{textAlign:'center',marginBottom:56}}>
+        <p style={{fontSize:11,color:A,letterSpacing:4,marginBottom:14}}>SERVICIOS</p>
+        <h2 style={{...h1,fontSize:44,fontWeight:700}}>Lo que hacemos</h2>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:20}}>
+        {SVC.map(s=>(
+          <div key={s.title} style={{background:`${Am}0.05)`,border:`1px solid ${Am}0.12)`,borderRadius:12,padding:'32px 24px'}}>
+            <div style={{fontSize:26,color:A,marginBottom:18}}>{s.icon}</div>
+            <h3 style={{...h1,fontSize:19,marginBottom:10,lineHeight:1.3}}>{s.title}</h3>
+            <p style={{color:'#9B97B0',fontSize:14,lineHeight:1.6}}>{s.desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    {/* PROCESS */}
+    <section style={{padding:'80px'}}>
+      <div style={{display:'grid',gridTemplateColumns:'280px 1fr',gap:80}}>
+        <div>
+          <p style={{fontSize:11,color:A,letterSpacing:4,marginBottom:16}}>PROCESO</p>
+          <h2 style={{...h1,fontSize:44,fontWeight:700,lineHeight:1.1}}>Del brief al lanzamiento</h2>
+        </div>
+        <div>
+          {STEPS.map(s=>(
+            <div key={s.n} style={{display:'flex',gap:28,padding:'24px 0',borderBottom:`1px solid ${Am}0.07)`}}>
+              <span style={{fontFamily:'monospace',fontSize:12,color:A,paddingTop:3,flex:'0 0 28px'}}>{s.n}</span>
+              <div><h3 style={{fontSize:19,marginBottom:6}}>{s.t}</h3><p style={{color:'#9B97B0',fontSize:14}}>{s.d}</p></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* PRICING */}
+    <section style={{padding:'80px',background:'#0D0D18'}}>
+      <div style={{textAlign:'center',marginBottom:56}}>
+        <p style={{fontSize:11,color:A,letterSpacing:4,marginBottom:14}}>INVERSIÓN</p>
+        <h2 style={{...h1,fontSize:44,fontWeight:700}}>Planes y Precios</h2>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:22,maxWidth:900,margin:'0 auto'}}>
+        {PLANS.map(p=>(
+          <div key={p.name} style={{background:p.top?`${Am}0.08)`:`${Am}0.03)`,border:p.top?`1px solid ${Am}0.35)`:`1px solid ${Am}0.1)`,borderRadius:12,padding:'36px 28px',position:'relative'}}>
+            {p.top&&<div style={{position:'absolute',top:-11,left:'50%',transform:'translateX(-50%)',background:A,color:'#fff',fontSize:10,padding:'4px 14px',borderRadius:100,letterSpacing:1,whiteSpace:'nowrap'}}>POPULAR</div>}
+            <div style={{fontSize:13,color:'#9B97B0',marginBottom:6}}>{p.name}</div>
+            <div style={{...h1,fontSize:42,fontWeight:700,marginBottom:4,color:p.top?'#A78BFA':'inherit'}}>{p.price}</div>
+            <div style={{fontSize:13,color:'#9B97B0',marginBottom:22}}>{p.sub}</div>
+            {p.items.map(i=><div key={i} style={{display:'flex',gap:8,marginBottom:9,fontSize:14,color:'#D0CDE8',alignItems:'flex-start'}}><span style={{color:A,flexShrink:0}}>✓</span>{i}</div>)}
+            <button style={{width:'100%',marginTop:22,padding:'13px',background:p.top?`linear-gradient(135deg,${A},#6D28D9)`:'transparent',border:p.top?'none':`1px solid ${Am}0.25)`,color:p.top?'#fff':'#A78BFA',borderRadius:6,fontSize:14,cursor:'pointer',...bd}}>Empezar →</button>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    {/* TESTIMONIALS */}
+    <section style={{padding:'80px'}}>
+      <div style={{textAlign:'center',marginBottom:52}}>
+        <p style={{fontSize:11,color:A,letterSpacing:4,marginBottom:14}}>TESTIMONIOS</p>
+        <h2 style={{...h1,fontSize:44,fontWeight:700}}>Lo que dicen los clientes</h2>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:20}}>
+        {TESTI.map((t,i)=>(
+          <div key={i} style={{background:`${Am}0.04)`,border:`1px solid ${Am}0.1)`,borderRadius:12,padding:'32px 28px'}}>
+            <p style={{color:'#D0CDE8',fontSize:15,lineHeight:1.75,marginBottom:20}}>{t.q}</p>
+            <p style={{color:'#9B97B0',fontSize:13}}>{t.a}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    {/* CONTACT */}
+    <section style={{padding:'80px',background:'#0D0D18',textAlign:'center'}}>
+      <h2 style={{...h1,fontSize:52,fontWeight:700,marginBottom:14}}>¿Listo para empezar?</h2>
+      <p style={{color:'#9B97B0',fontSize:17,marginBottom:48}}>Hablemos sin compromiso. Respondo en menos de 24h.</p>
+      <form style={{maxWidth:460,margin:'0 auto',display:'flex',flexDirection:'column',gap:13}} onSubmit={e=>e.preventDefault()}>
+        <Inp ph="Nombre" s={iS}/><Inp ph="Email" s={iS}/>
+        <Inp ph="Descripción del proyecto" multi s={{...iS,resize:'none'}}/>
+        <button type="submit" style={{background:`linear-gradient(135deg,${A},#6D28D9)`,border:'none',color:'#fff',padding:'15px',borderRadius:8,fontSize:16,cursor:'pointer',...bd,fontWeight:500}}>Enviar Mensaje →</button>
+      </form>
+    </section>
+    <footer style={{padding:'26px 80px',borderTop:`1px solid ${Am}0.08)`,display:'flex',justifyContent:'space-between',alignItems:'center',color:'#555',fontSize:12}}>
+      <span style={{...h1,fontSize:20,color:'#F0EEF8',fontWeight:700}}>Bolivar<span style={{color:A}}>.</span></span>
+      <span>© 2025 · Luis Bolivar · Servicios Digitales</span>
+    </footer>
+  </div>);
+}
+
+/* ─────────────── P2 ARCTIC NEURAL ─────────────── */
+function P2(){
+  const A='#00D4FF', Am='rgba(0,212,255,', bg='#050D1A', bg2='#071525';
+  const mono={fontFamily:"'Space Mono',monospace"};
+  const grot={fontFamily:"'Space Grotesk',sans-serif"};
+  const iS={background:`${Am}0.04)`,border:`1px solid ${Am}0.15)`,color:'#E8F4F8',padding:'13px 18px',borderRadius:6,fontSize:13,...mono,outline:'none',width:'100%',display:'block'};
+  return (
+  <div style={{...grot,background:bg,color:'#E8F4F8'}}>
+    <nav style={{padding:'20px 80px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:`1px solid ${Am}0.1)`}}>
+      <span style={{...mono,fontSize:18,fontWeight:700,color:A,letterSpacing:2}}>BOLIVAR_SYS</span>
+      <div style={{display:'flex',gap:30,color:`${Am}0.5)`,fontSize:13,...mono}}>
+        {['.servicios','.proceso','.precios','.blog'].map(l=><a key={l} style={{color:'inherit',textDecoration:'none',cursor:'pointer'}}>{l}</a>)}
+      </div>
+      <button style={{background:'transparent',border:`1px solid ${A}`,color:A,padding:'9px 22px',borderRadius:4,fontSize:13,cursor:'pointer',...mono,letterSpacing:1}}>CONTACTAR →</button>
+    </nav>
+
+    <section style={{padding:'80px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:80,alignItems:'center',minHeight:'92vh',position:'relative',overflow:'hidden'}}>
+      <div style={{position:'absolute',inset:0,backgroundImage:`repeating-linear-gradient(0deg,transparent,transparent 3px,${Am}0.02) 3px,${Am}0.02) 4px)`,pointerEvents:'none'}}/>
+      <div style={{position:'relative'}}>
+        <div style={{...mono,fontSize:11,color:`${Am}0.6)`,letterSpacing:2,marginBottom:28,lineHeight:1.9}}>
+          &gt; SISTEMA INICIADO<br/>
+          <span style={{opacity:.5}}>&gt; CARGANDO SERVICIOS...</span><br/>
+          <span style={{color:'#28C840'}}>&gt; LISTO ●</span>
+        </div>
+        <h1 style={{...grot,fontSize:76,fontWeight:700,lineHeight:1.0,letterSpacing:'-2px',marginBottom:24,animation:'fadeUp .7s ease forwards'}}>
+          Tecnología<br/>que<br/><span style={{color:A}}>Vende.</span>
+        </h1>
+        <p style={{fontSize:16,color:`${Am}0.55)`,lineHeight:1.8,maxWidth:440,marginBottom:40}}>
+          Plataformas construidas con arquitectura moderna, IA integrada y obsesión por la conversión.
+        </p>
+        <div style={{display:'flex',gap:14,flexWrap:'wrap'}}>
+          <button style={{background:A,border:'none',color:bg,padding:'14px 32px',borderRadius:4,fontSize:14,cursor:'pointer',...grot,fontWeight:700}}>INICIAR PROYECTO</button>
+          <button style={{background:'transparent',border:`1px solid ${Am}0.3)`,color:A,padding:'14px 32px',borderRadius:4,fontSize:14,cursor:'pointer',...grot}}>VER SERVICIOS</button>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:24,marginTop:56,paddingTop:40,borderTop:`1px solid ${Am}0.1)`}}>
+          {[['20+','builds'],['99%','uptime'],['4.9','stars']].map(([v,l])=>(
+            <div key={l}><div style={{...mono,fontSize:28,color:A,fontWeight:700}}>{v}</div><div style={{fontSize:12,color:`${Am}0.45)`,...mono}}>{l}</div></div>
+          ))}
+        </div>
+      </div>
+      <div style={{background:bg2,border:`1px solid ${Am}0.2)`,borderRadius:12,overflow:'hidden',...mono,fontSize:13,lineHeight:2}}>
+        <div style={{background:'#071F35',padding:'12px 18px',borderBottom:`1px solid ${Am}0.1)`,display:'flex',alignItems:'center',gap:8}}>
+          {['#FF5F57','#FEBC2E','#28C840'].map(c=><span key={c} style={{width:11,height:11,borderRadius:'50%',background:c,display:'inline-block'}}/>)}
+          <span style={{marginLeft:8,color:`${Am}0.3)`,fontSize:11}}>bolivar-services.sh</span>
+        </div>
+        <div style={{padding:'24px 28px'}}>
+          <div style={{color:`${Am}0.6)`}}>$ <span style={{color:A}}>list</span> --services</div>
+          <div style={{color:`${Am}0.35)`}}># Servicios disponibles:</div>
+          {SVC.map(s=><div key={s.tag}><span style={{color:A}}>✓</span> <span>{s.tag.toLowerCase()}</span> <span style={{color:`${Am}0.3)`}}>--active</span></div>)}
+          <div style={{marginTop:8,color:`${Am}0.6)`}}>$ <span style={{color:A}}>status</span> --delivery</div>
+          <div style={{color:'#28C840'}}>✓ On-time delivery: 100%</div>
+          <div style={{color:`${Am}0.6)`}}>$ <span style={{animation:'blink 1s step-end infinite',color:A}}>█</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section style={{padding:'80px',borderTop:`1px solid ${Am}0.08)`}}>
+      <p style={{...mono,fontSize:11,color:A,letterSpacing:3,marginBottom:12}}>&gt; SERVICIOS.LIST()</p>
+      <h2 style={{fontSize:44,fontWeight:700,marginBottom:44}}>Qué construimos</h2>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:18}}>
+        {SVC.map(s=>(
+          <div key={s.title} style={{background:`${Am}0.04)`,border:`1px solid ${Am}0.1)`,borderRadius:8,padding:'26px 22px'}}>
+            <div style={{...mono,fontSize:10,color:A,marginBottom:12,letterSpacing:1}}>[{s.tag}]</div>
+            <h3 style={{fontSize:17,fontWeight:700,marginBottom:9,lineHeight:1.3}}>{s.title}</h3>
+            <p style={{color:`${Am}0.5)`,fontSize:13,lineHeight:1.6}}>{s.desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'80px',background:bg2}}>
+      <p style={{...mono,fontSize:11,color:A,letterSpacing:3,marginBottom:12}}>&gt; PROCESO.EXEC()</p>
+      <h2 style={{fontSize:44,fontWeight:700,marginBottom:44}}>Cómo trabajamos</h2>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:18}}>
+        {STEPS.map(s=>(
+          <div key={s.n} style={{background:`${Am}0.03)`,border:`1px solid ${Am}0.08)`,borderRadius:8,padding:'28px 22px'}}>
+            <div style={{...mono,fontSize:10,color:A,marginBottom:12}}>[{s.n}]</div>
+            <h3 style={{fontSize:18,fontWeight:700,marginBottom:8}}>{s.t}</h3>
+            <p style={{color:`${Am}0.5)`,fontSize:13,lineHeight:1.6}}>{s.d}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'80px'}}>
+      <p style={{...mono,fontSize:11,color:A,letterSpacing:3,marginBottom:12}}>&gt; PRICING.GET()</p>
+      <h2 style={{fontSize:44,fontWeight:700,marginBottom:44}}>Inversión</h2>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:18,maxWidth:880,margin:'0 auto'}}>
+        {PLANS.map(p=>(
+          <div key={p.name} style={{background:p.top?`${Am}0.07)`:`${Am}0.02)`,border:p.top?`1px solid ${Am}0.35)`:`1px solid ${Am}0.08)`,borderRadius:8,padding:'32px 24px',position:'relative'}}>
+            {p.top&&<div style={{position:'absolute',top:-10,right:18,background:A,color:bg,fontSize:10,padding:'3px 12px',borderRadius:4,...mono,fontWeight:700}}>POPULAR</div>}
+            <div style={{...mono,fontSize:11,color:A,marginBottom:8}}>[{p.name.toLowerCase()}]</div>
+            <div style={{fontSize:38,fontWeight:700,color:p.top?A:'inherit',marginBottom:4}}>{p.price}</div>
+            <div style={{...mono,fontSize:12,color:`${Am}0.4)`,marginBottom:20}}>{p.sub}</div>
+            {p.items.map(i=><div key={i} style={{display:'flex',gap:8,marginBottom:8,fontSize:13,color:'#C0D8E4',alignItems:'flex-start'}}><span style={{color:A,flexShrink:0}}>→</span>{i}</div>)}
+            <button style={{width:'100%',marginTop:20,padding:'12px',background:p.top?A:'transparent',border:p.top?'none':`1px solid ${Am}0.25)`,color:p.top?bg:A,borderRadius:4,fontSize:13,cursor:'pointer',...mono,fontWeight:700,letterSpacing:.5}}>SELECCIONAR →</button>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'80px',background:bg2}}>
+      <p style={{...mono,fontSize:11,color:A,letterSpacing:3,marginBottom:12}}>&gt; TESTIMONIOS.LOG()</p>
+      <h2 style={{fontSize:44,fontWeight:700,marginBottom:44}}>Clientes</h2>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:18}}>
+        {TESTI.map((t,i)=>(
+          <div key={i} style={{background:`${Am}0.04)`,border:`1px solid ${Am}0.1)`,borderRadius:8,padding:'28px 22px'}}>
+            <p style={{color:'#C0D8E4',fontSize:14,lineHeight:1.75,marginBottom:16}}>{t.q}</p>
+            <p style={{...mono,color:`${Am}0.45)`,fontSize:11}}>{t.a}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'80px',textAlign:'center'}}>
+      <p style={{...mono,fontSize:11,color:A,letterSpacing:3,marginBottom:14}}>&gt; CONTACT.INIT()</p>
+      <h2 style={{fontSize:52,fontWeight:700,marginBottom:14}}>Hablemos de tu proyecto</h2>
+      <p style={{color:`${Am}0.5)`,fontSize:16,marginBottom:44}}>Respuesta en &lt;24 horas garantizada.</p>
+      <form style={{maxWidth:440,margin:'0 auto',display:'flex',flexDirection:'column',gap:12}} onSubmit={e=>e.preventDefault()}>
+        <Inp ph="nombre" s={iS}/><Inp ph="email" s={iS}/>
+        <Inp ph="descripción del proyecto" multi s={{...iS,resize:'none'}}/>
+        <button type="submit" style={{background:A,border:'none',color:bg,padding:'14px',borderRadius:6,fontSize:15,cursor:'pointer',...grot,fontWeight:700}}>ENVIAR MENSAJE →</button>
+      </form>
+    </section>
+    <footer style={{padding:'22px 80px',borderTop:`1px solid ${Am}0.08)`,display:'flex',justifyContent:'space-between',alignItems:'center',color:`${Am}0.25)`,fontSize:12}}>
+      <span style={{...mono,fontSize:16,color:A,fontWeight:700}}>BOLIVAR_SYS</span>
+      <span style={{...mono}}>© 2025 · LUIS_BOLIVAR</span>
+    </footer>
+  </div>);
+}
+
+/* ─────────────── P3 OBSIDIAN GOLD ─────────────── */
+function P3(){
+  const A='#F0A500', Am='rgba(240,165,0,', bg='#111018', bg2='#0C0B12';
+  const serif={fontFamily:"'Cormorant Garamond',serif"};
+  const sans={fontFamily:"'Montserrat',sans-serif"};
+  const iS={background:'transparent',border:'none',borderBottom:`1px solid ${Am}0.2)`,color:'#F5F0E8',padding:'13px 0',fontSize:14,...sans,fontWeight:300,outline:'none',width:'100%',display:'block'};
+  return (
+  <div style={{...sans,background:bg,color:'#F5F0E8'}}>
+    <nav style={{padding:'28px 96px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:`1px solid ${Am}0.1)`}}>
+      <span style={{...serif,fontSize:28,fontWeight:600,letterSpacing:3}}>BOLIVAR</span>
+      <div style={{display:'flex',gap:40,color:'#8A8090',fontSize:12,letterSpacing:2,textTransform:'uppercase'}}>
+        {['Servicios','Proceso','Precios','Blog'].map(l=><a key={l} style={{color:'inherit',textDecoration:'none',cursor:'pointer'}}>{l}</a>)}
+      </div>
+      <button style={{background:'transparent',border:`1px solid ${Am}0.4)`,color:A,padding:'10px 28px',borderRadius:2,fontSize:11,cursor:'pointer',letterSpacing:2,...sans}}>CONTACTAR</button>
+    </nav>
+
+    <section style={{padding:'100px 96px',minHeight:'92vh',display:'flex',alignItems:'center',position:'relative',overflow:'hidden'}}>
+      <div style={{position:'absolute',right:96,top:0,bottom:0,width:1,background:`linear-gradient(to bottom,transparent,${Am}0.25),transparent)`}}/>
+      <div style={{maxWidth:840}}>
+        <p style={{...serif,fontSize:16,color:A,letterSpacing:4,marginBottom:40,fontStyle:'italic'}}>— Arquitectura Digital Premium</p>
+        <h1 style={{...serif,fontSize:96,fontWeight:300,lineHeight:0.95,letterSpacing:'-1px',marginBottom:40,animation:'fadeUp .9s ease forwards'}}>
+          Arquitectura<br/>Digital para<br/><span style={{color:A,fontStyle:'italic'}}>Marcas Ambiciosas</span>
+        </h1>
+        <div style={{width:80,height:1,background:`linear-gradient(to right,${A},transparent)`,marginBottom:40}}/>
+        <p style={{fontSize:17,color:'#8A8090',lineHeight:1.9,maxWidth:520,marginBottom:56,fontWeight:300}}>
+          Diseño, desarrollo e inteligencia artificial al servicio de emprendedores que entienden que el detalle lo es todo.
+        </p>
+        <div style={{display:'flex',gap:20,flexWrap:'wrap'}}>
+          <button style={{background:A,border:'none',color:bg,padding:'16px 40px',borderRadius:2,fontSize:12,cursor:'pointer',...sans,fontWeight:600,letterSpacing:2}}>INICIAR PROYECTO</button>
+          <button style={{background:'transparent',border:`1px solid ${Am}0.25)`,color:A,padding:'16px 40px',borderRadius:2,fontSize:12,cursor:'pointer',letterSpacing:2,...sans}}>EXPLORAR</button>
+        </div>
+      </div>
+      <div style={{position:'absolute',bottom:80,right:96,textAlign:'right'}}>
+        {[['20+','Proyectos completados'],['4.9','Satisfacción cliente'],['100%','Entrega puntual']].map(([v,l])=>(
+          <div key={l} style={{marginBottom:24}}>
+            <div style={{...serif,fontSize:40,color:A,fontWeight:600}}>{v}</div>
+            <div style={{fontSize:10,color:'#6A6070',letterSpacing:2,textTransform:'uppercase'}}>{l}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    {[{title:'SERVICIOS',items:SVC,render:(s,i)=>(
+      <div key={s.title} style={{display:'flex',gap:36,padding:'28px 0',borderBottom:`1px solid ${Am}0.06)`,alignItems:'start'}}>
+        <span style={{...serif,fontSize:14,color:A,flex:'0 0 28px',paddingTop:2}}>0{i+1}</span>
+        <div><h3 style={{...serif,fontSize:24,marginBottom:8,fontWeight:600}}>{s.title}</h3><p style={{color:'#8A8090',fontSize:14,lineHeight:1.7,fontWeight:300}}>{s.desc}</p></div>
+      </div>
+    )},{title:'PROCESO',items:STEPS,render:(s,i)=>(
+      <div key={s.n} style={{display:'flex',gap:36,padding:'28px 0',borderBottom:`1px solid ${Am}0.06)`,alignItems:'start'}}>
+        <span style={{...serif,fontSize:14,color:A,flex:'0 0 28px',paddingTop:2}}>{s.n}</span>
+        <div><h3 style={{...serif,fontSize:24,marginBottom:8,fontWeight:600}}>{s.t}</h3><p style={{color:'#8A8090',fontSize:14,lineHeight:1.7,fontWeight:300}}>{s.d}</p></div>
+      </div>
+    )}].map(sec=>(
+      <section key={sec.title} style={{padding:'80px 96px',borderTop:`1px solid ${Am}0.07)`}}>
+        <div style={{display:'grid',gridTemplateColumns:'260px 1fr',gap:80}}>
+          <div><p style={{...serif,fontSize:13,color:A,letterSpacing:4,marginBottom:24}}>{sec.title}</p><h2 style={{...serif,fontSize:52,fontWeight:300,lineHeight:1.1}}>{sec.title==='SERVICIOS'?'Especialidades':'Del brief al lanzamiento'}</h2></div>
+          <div>{sec.items.map((s,i)=>sec.render(s,i))}</div>
+        </div>
+      </section>
+    ))}
+
+    <section style={{padding:'80px 96px',background:bg2}}>
+      <div style={{textAlign:'center',marginBottom:60}}>
+        <p style={{...serif,fontSize:13,color:A,letterSpacing:4,marginBottom:20,fontStyle:'italic'}}>INVERSIÓN</p>
+        <h2 style={{...serif,fontSize:56,fontWeight:300}}>Planes a tu medida</h2>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:2,maxWidth:880,margin:'0 auto'}}>
+        {PLANS.map(p=>(
+          <div key={p.name} style={{background:p.top?`${Am}0.05)`:'transparent',border:`1px solid ${Am}0.1)`,padding:'44px 36px',textAlign:'center'}}>
+            <div style={{...serif,fontSize:13,color:A,letterSpacing:3,marginBottom:14,fontStyle:'italic'}}>{p.name}</div>
+            <div style={{...serif,fontSize:52,fontWeight:300,color:p.top?A:'inherit',marginBottom:6}}>{p.price}</div>
+            <div style={{fontSize:11,color:'#6A6070',marginBottom:28,letterSpacing:1}}>{p.sub.toUpperCase()}</div>
+            <div style={{textAlign:'left'}}>{p.items.map(i=><div key={i} style={{display:'flex',gap:12,marginBottom:10,fontSize:13,color:'#C0B8CC',alignItems:'flex-start'}}><span style={{color:A,flexShrink:0}}>—</span>{i}</div>)}</div>
+            <button style={{width:'100%',marginTop:24,padding:'13px',background:p.top?A:'transparent',border:p.top?'none':`1px solid ${Am}0.2)`,color:p.top?bg:A,borderRadius:2,fontSize:11,cursor:'pointer',...sans,letterSpacing:2}}>SELECCIONAR</button>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'80px 96px'}}>
+      <p style={{...serif,fontSize:13,color:A,letterSpacing:4,marginBottom:20,fontStyle:'italic',textAlign:'center'}}>TESTIMONIOS</p>
+      <h2 style={{...serif,fontSize:52,fontWeight:300,textAlign:'center',marginBottom:52}}>Voces de clientes</h2>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:2}}>
+        {TESTI.map((t,i)=>(
+          <div key={i} style={{border:`1px solid ${Am}0.08)`,padding:'36px 28px'}}>
+            <p style={{...serif,fontSize:17,fontStyle:'italic',lineHeight:1.8,marginBottom:20,fontWeight:300,color:'#D0C8D8'}}>{t.q}</p>
+            <p style={{fontSize:12,color:'#6A6070',letterSpacing:1}}>{t.a}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'80px 96px',background:bg2}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:80}}>
+        <div>
+          <p style={{...serif,fontSize:13,color:A,letterSpacing:4,marginBottom:24,fontStyle:'italic'}}>CONTACTO</p>
+          <h2 style={{...serif,fontSize:64,fontWeight:300,lineHeight:1.0,marginBottom:24}}>Hagamos algo extraordinario.</h2>
+          <p style={{color:'#8A8090',fontSize:15,lineHeight:1.8,fontWeight:300}}>Cuéntame sobre tu proyecto. Respondo en menos de 24h.</p>
+        </div>
+        <form style={{display:'flex',flexDirection:'column',gap:20,paddingTop:56}} onSubmit={e=>e.preventDefault()}>
+          <Inp ph="Nombre completo" s={iS}/><Inp ph="Email profesional" s={iS}/>
+          <Inp ph="Descripción del proyecto" multi s={{...iS,resize:'none'}}/>
+          <button type="submit" style={{background:A,border:'none',color:bg,padding:'16px',fontSize:11,cursor:'pointer',...sans,fontWeight:600,letterSpacing:2,marginTop:8}}>ENVIAR MENSAJE</button>
+        </form>
+      </div>
+    </section>
+    <footer style={{padding:'24px 96px',borderTop:`1px solid ${Am}0.06)`,display:'flex',justifyContent:'space-between',alignItems:'center',color:'#4A4050',fontSize:10,letterSpacing:2}}>
+      <span style={{...serif,fontSize:20,color:'#F5F0E8',letterSpacing:3}}>BOLIVAR</span>
+      <span>© 2025 LUIS BOLIVAR · SERVICIOS DIGITALES</span>
+    </footer>
+  </div>);
+}
+
+Object.assign(window,{P1,P2,P3});
+</script>
+
+<!-- ═══════════════════════════════════════════
+     BLOCK 3 — P4 Blanco Brutal · P5 Deep Cosmos · P6 Terminal Dev
+═══════════════════════════════════════════ -->
+<script type="text/babel">
+const {SVC,PLANS,STEPS,TESTI,Inp} = window;
+
+/* ─────────────── P4 BLANCO BRUTAL ─────────────── */
+function P4(){
+  const A='#C1440E', bg='#F4F3EE', ink='#111111';
+  const anton={fontFamily:"'Anton',sans-serif"};
+  const bar={fontFamily:"'Barlow',sans-serif"};
+  const B=(w=2)=>`${w}px solid ${ink}`;
+  return (
+  <div style={{...bar,background:bg,color:ink}}>
+    <nav style={{padding:'18px 60px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:B(3)}}>
+      <span style={{...anton,fontSize:26,letterSpacing:2}}>BOLIVAR</span>
+      <div style={{display:'flex',gap:28,fontSize:13,fontWeight:700,textTransform:'uppercase',letterSpacing:1}}>
+        {['Servicios','Proceso','Precios','Blog'].map(l=><a key={l} style={{color:'inherit',textDecoration:'none',cursor:'pointer'}}>{l}</a>)}
+      </div>
+      <button style={{background:A,border:'none',color:'#fff',padding:'11px 26px',fontSize:13,cursor:'pointer',...bar,fontWeight:700,letterSpacing:1}}>CONTACTAR →</button>
+    </nav>
+
+    <section style={{padding:'60px 60px 80px',position:'relative',overflow:'hidden',borderBottom:B(3)}}>
+      <div style={{position:'absolute',right:-10,top:-30,...anton,fontSize:420,color:'rgba(0,0,0,0.04)',lineHeight:1,pointerEvents:'none',userSelect:'none'}}>B</div>
+      <div style={{display:'inline-flex',alignItems:'center',background:A,padding:'6px 16px',marginBottom:32}}>
+        <span style={{fontSize:11,fontWeight:700,color:'#fff',letterSpacing:2,textTransform:'uppercase'}}>Servicios Digitales · 2025</span>
+      </div>
+      <h1 style={{...anton,fontSize:96,lineHeight:0.92,letterSpacing:'-2px',marginBottom:40,maxWidth:920,animation:'fadeUp .6s ease forwards'}}>
+        HACEMOS QUE TU NEGOCIO VENDA EN LÍNEA.
+      </h1>
+      <div style={{display:'flex',gap:56,alignItems:'flex-start',flexWrap:'wrap'}}>
+        <p style={{fontSize:18,lineHeight:1.7,maxWidth:440,flex:'0 0 440px'}}>
+          Tiendas Shopify, landing pages, agentes IA y gestión mensual para emprendedores que no hacen las cosas a medias.
+        </p>
+        <div>
+          <div style={{display:'flex',gap:14,marginBottom:28,flexWrap:'wrap'}}>
+            <button style={{background:ink,border:'none',color:bg,padding:'15px 32px',fontSize:15,cursor:'pointer',...bar,fontWeight:700}}>INICIAR →</button>
+            <button style={{background:'transparent',border:B(3),color:ink,padding:'15px 32px',fontSize:15,cursor:'pointer',...bar,fontWeight:700}}>VER SERVICIOS</button>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',border:B()}}>
+            {[['20+','Proyectos'],['4.9','Rating'],['100%','Puntual']].map(([v,l],i)=>(
+              <div key={l} style={{padding:'18px 22px',borderRight:i<2?B():'none'}}>
+                <div style={{...anton,fontSize:30}}>{v}</div>
+                <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:1,color:'#666'}}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {[{title:'SERVICIOS',sub:'04 SOLUCIONES',items:SVC,render:(s,i)=>(
+      <div key={s.title} style={{padding:'32px 26px',borderRight:i<3?B():'none'}}>
+        <div style={{...anton,fontSize:48,color:'rgba(0,0,0,0.05)',lineHeight:1,marginBottom:12}}>0{i+1}</div>
+        <h3 style={{...bar,fontSize:17,fontWeight:900,textTransform:'uppercase',letterSpacing:1,marginBottom:10,lineHeight:1.2}}>{s.title}</h3>
+        <p style={{fontSize:14,lineHeight:1.6,color:'#444'}}>{s.desc}</p>
+        <div style={{marginTop:18,display:'inline-block',background:A,color:'#fff',fontSize:10,padding:'4px 10px',fontWeight:700,letterSpacing:1}}>VER MÁS →</div>
+      </div>
+    )},{title:'PROCESO',sub:'04 PASOS',items:STEPS,render:(s,i)=>(
+      <div key={s.n} style={{padding:'32px 26px',borderRight:i<3?B():'none'}}>
+        <div style={{...anton,fontSize:48,color:'rgba(0,0,0,0.05)',lineHeight:1,marginBottom:12}}>{s.n}</div>
+        <h3 style={{...bar,fontSize:17,fontWeight:900,textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>{s.t}</h3>
+        <p style={{fontSize:14,lineHeight:1.6,color:'#444'}}>{s.d}</p>
+      </div>
+    )}].map(sec=>(
+      <section key={sec.title} style={{padding:'60px',borderBottom:B(3)}}>
+        <div style={{display:'flex',alignItems:'baseline',gap:20,marginBottom:44}}>
+          <h2 style={{...anton,fontSize:60,lineHeight:1}}>{sec.title}</h2>
+          <span style={{fontSize:13,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:A}}>— {sec.sub}</span>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:`repeat(${sec.items.length},1fr)`,border:B()}}>
+          {sec.items.map((s,i)=>sec.render(s,i))}
+        </div>
+      </section>
+    ))}
+
+    <section style={{padding:'60px',borderBottom:B(3)}}>
+      <div style={{display:'flex',alignItems:'baseline',gap:20,marginBottom:44}}>
+        <h2 style={{...anton,fontSize:60,lineHeight:1}}>PRECIOS</h2>
+        <span style={{fontSize:13,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:A}}>— 03 PLANES</span>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',border:B(),maxWidth:860}}>
+        {PLANS.map((p,i)=>(
+          <div key={p.name} style={{padding:'36px 28px',borderRight:i<2?B():'none',background:p.top?ink:'transparent',color:p.top?bg:'inherit',position:'relative'}}>
+            {p.top&&<div style={{position:'absolute',top:0,left:0,right:0,height:4,background:A}}/>}
+            <div style={{...anton,fontSize:12,letterSpacing:3,marginBottom:10,color:p.top?A:'#999'}}>{p.name.toUpperCase()}</div>
+            <div style={{...anton,fontSize:48,lineHeight:1,marginBottom:6}}>{p.price}</div>
+            <div style={{fontSize:12,marginBottom:22,color:p.top?'#AAA':'#666',textTransform:'uppercase',letterSpacing:1}}>{p.sub}</div>
+            {p.items.map(item=><div key={item} style={{display:'flex',gap:8,marginBottom:9,fontSize:14,alignItems:'flex-start'}}><span style={{color:A,flexShrink:0}}>↗</span>{item}</div>)}
+            <button style={{width:'100%',marginTop:22,padding:'13px',background:p.top?A:ink,border:'none',color:'#fff',fontSize:13,cursor:'pointer',...bar,fontWeight:700,letterSpacing:1}}>ELEGIR →</button>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'60px',borderBottom:B(3)}}>
+      <h2 style={{...anton,fontSize:56,marginBottom:44,lineHeight:1}}>TESTIMONIOS</h2>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',border:B()}}>
+        {TESTI.map((t,i)=>(
+          <div key={i} style={{padding:'32px 26px',borderRight:i<2?B():'none'}}>
+            <p style={{fontSize:15,lineHeight:1.7,marginBottom:16,color:'#333'}}>{t.q}</p>
+            <p style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:1,color:A}}>{t.a}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'60px',borderBottom:B(3)}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:60,alignItems:'start'}}>
+        <div>
+          <h2 style={{...anton,fontSize:72,lineHeight:0.95,marginBottom:20}}>HABLEMOS DE TU NEGOCIO.</h2>
+          <p style={{fontSize:16,lineHeight:1.7,color:'#444'}}>Respondo en menos de 24 horas. Sin rodeos.</p>
+        </div>
+        <form style={{display:'flex',flexDirection:'column',border:B()}} onSubmit={e=>e.preventDefault()}>
+          {['Nombre','Email'].map((ph,ii)=>(
+            <input key={ph} placeholder={ph} style={{border:'none',borderBottom:B(),color:ink,padding:'16px 20px',fontSize:14,...bar,outline:'none',background:'transparent'}}/>
+          ))}
+          <textarea placeholder="Proyecto" rows={3} style={{border:'none',borderBottom:B(),color:ink,padding:'16px 20px',fontSize:14,...bar,outline:'none',resize:'none',background:'transparent'}}/>
+          <button type="submit" style={{background:A,border:'none',color:'#fff',padding:'17px',fontSize:14,cursor:'pointer',...bar,fontWeight:700,letterSpacing:1}}>ENVIAR →</button>
+        </form>
+      </div>
+    </section>
+    <footer style={{padding:'22px 60px',borderBottom:B(3),display:'flex',justifyContent:'space-between',alignItems:'center',fontSize:12}}>
+      <span style={{...anton,fontSize:20,letterSpacing:2}}>BOLIVAR</span>
+      <span style={{fontWeight:700,letterSpacing:1,color:'#666',textTransform:'uppercase',fontSize:10}}>© 2025 · LUIS BOLIVAR</span>
+    </footer>
+  </div>);
+}
+
+/* ─────────────── P5 DEEP COSMOS ─────────────── */
+function P5(){
+  const A='#FF6B6B', Am='rgba(255,107,107,';
+  const jk={fontFamily:"'Plus Jakarta Sans',sans-serif"};
+  const gl={background:'rgba(255,255,255,0.05)',backdropFilter:'blur(16px)',border:'1px solid rgba(255,255,255,0.1)'};
+  const iS={...gl,color:'#F0EDF8',padding:'13px 18px',borderRadius:14,fontSize:14,...jk,outline:'none',width:'100%',display:'block'};
+  return (
+  <div style={{...jk,background:'linear-gradient(160deg,#0F0C29 0%,#1a1535 50%,#0F0C29 100%)',color:'#F0EDF8'}}>
+    <nav style={{padding:'24px 72px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+      <div style={{display:'flex',alignItems:'center',gap:10}}>
+        <div style={{width:32,height:32,borderRadius:8,background:`linear-gradient(135deg,${A},#C15151)`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:800,color:'#fff'}}>B</div>
+        <span style={{fontSize:20,fontWeight:700}}>Bolivar</span>
+      </div>
+      <div style={{display:'flex',gap:36,color:'rgba(240,237,248,0.45)',fontSize:15}}>
+        {['Servicios','Proceso','Precios','Blog'].map(l=><a key={l} style={{color:'inherit',textDecoration:'none',cursor:'pointer'}}>{l}</a>)}
+      </div>
+      <button style={{background:`linear-gradient(135deg,${A},#C15151)`,border:'none',color:'#fff',padding:'11px 28px',borderRadius:100,fontSize:14,cursor:'pointer',...jk,fontWeight:600}}>Comencemos →</button>
+    </nav>
+
+    <section style={{padding:'100px 72px',display:'flex',flexDirection:'column',alignItems:'center',textAlign:'center',position:'relative',overflow:'hidden',minHeight:'92vh',justifyContent:'center'}}>
+      <div style={{position:'absolute',top:'-5%',left:'-5%',width:500,height:500,borderRadius:'50%',background:`radial-gradient(circle,${Am}0.1) 0%,transparent 60%)`,pointerEvents:'none'}}/>
+      <div style={{position:'absolute',bottom:'-5%',right:'-5%',width:550,height:550,borderRadius:'50%',background:'radial-gradient(circle,rgba(79,70,229,0.12) 0%,transparent 60%)',pointerEvents:'none'}}/>
+      <div style={{...gl,padding:'7px 18px',borderRadius:100,marginBottom:30,display:'inline-flex',alignItems:'center',gap:8,fontSize:13,color:'rgba(240,237,248,0.65)'}}>
+        <span style={{width:6,height:6,borderRadius:'50%',background:A,display:'inline-block',animation:'pulse 2s infinite'}}/>
+        El Partner Digital de tu Negocio
+      </div>
+      <h1 style={{fontSize:92,fontWeight:800,lineHeight:0.97,letterSpacing:'-3px',marginBottom:24,maxWidth:800,animation:'fadeUp .8s ease forwards'}}>
+        Haz Crecer tu<br/><span style={{background:`linear-gradient(135deg,${A},#FFB347)`,WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>Negocio Online</span>
+      </h1>
+      <p style={{fontSize:20,color:'rgba(240,237,248,0.55)',lineHeight:1.7,maxWidth:540,marginBottom:52,animation:'fadeUp .8s .15s ease forwards'}}>
+        Shopify, landing pages, chatbots IA y gestión mensual. Todo lo que necesitas para vender más.
+      </p>
+      <div style={{display:'flex',gap:16,marginBottom:80,animation:'fadeUp .8s .3s ease forwards',flexWrap:'wrap',justifyContent:'center'}}>
+        <button style={{background:`linear-gradient(135deg,${A},#C15151)`,border:'none',color:'#fff',padding:'16px 40px',borderRadius:100,fontSize:17,cursor:'pointer',...jk,fontWeight:700,boxShadow:`0 8px 32px ${Am}0.3)`}}>Iniciar Proyecto →</button>
+        <button style={{...gl,color:'#F0EDF8',padding:'16px 40px',borderRadius:100,fontSize:17,cursor:'pointer',...jk,background:'rgba(255,255,255,0.07)',border:'1px solid rgba(255,255,255,0.15)'}}>Ver Servicios</button>
+      </div>
+      <div style={{display:'flex',gap:20,flexWrap:'wrap',justifyContent:'center'}}>
+        {[['20+','Proyectos'],['4.9★','Rating'],['IA','Integrada'],['100%','Entrega']].map(([v,l])=>(
+          <div key={l} style={{...gl,padding:'18px 26px',textAlign:'center',borderRadius:16}}>
+            <div style={{fontSize:22,fontWeight:800,color:A}}>{v}</div>
+            <div style={{fontSize:12,color:'rgba(240,237,248,0.45)',marginTop:4}}>{l}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'80px 72px',background:'rgba(0,0,0,0.2)'}}>
+      <div style={{textAlign:'center',marginBottom:52}}>
+        <p style={{fontSize:12,color:A,letterSpacing:3,marginBottom:12}}>SERVICIOS</p>
+        <h2 style={{fontSize:48,fontWeight:800,letterSpacing:'-1px'}}>Lo que hacemos</h2>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:18}}>
+        {SVC.map(s=>(
+          <div key={s.title} style={{...gl,padding:'30px 22px',borderRadius:20}}>
+            <div style={{width:44,height:44,borderRadius:12,background:`${Am}0.15)`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,marginBottom:16}}>{s.icon}</div>
+            <h3 style={{fontSize:18,fontWeight:700,marginBottom:9,lineHeight:1.3}}>{s.title}</h3>
+            <p style={{color:'rgba(240,237,248,0.5)',fontSize:14,lineHeight:1.6}}>{s.desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'80px 72px'}}>
+      <div style={{textAlign:'center',marginBottom:52}}>
+        <p style={{fontSize:12,color:A,letterSpacing:3,marginBottom:12}}>PROCESO</p>
+        <h2 style={{fontSize:48,fontWeight:800,letterSpacing:'-1px'}}>Cómo trabajamos</h2>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:18}}>
+        {STEPS.map(s=>(
+          <div key={s.n} style={{...gl,padding:'28px 22px',borderRadius:20}}>
+            <div style={{fontSize:48,fontWeight:800,color:`${Am}0.2)`,lineHeight:1,marginBottom:12}}>{s.n}</div>
+            <h3 style={{fontSize:18,fontWeight:700,marginBottom:8}}>{s.t}</h3>
+            <p style={{color:'rgba(240,237,248,0.5)',fontSize:14,lineHeight:1.6}}>{s.d}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'80px 72px',background:'rgba(0,0,0,0.2)'}}>
+      <div style={{textAlign:'center',marginBottom:52}}>
+        <p style={{fontSize:12,color:A,letterSpacing:3,marginBottom:12}}>PLANES</p>
+        <h2 style={{fontSize:48,fontWeight:800,letterSpacing:'-1px'}}>Inversión Clara</h2>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:20,maxWidth:900,margin:'0 auto'}}>
+        {PLANS.map(p=>(
+          <div key={p.name} style={{...gl,padding:'36px 28px',borderRadius:24,border:p.top?`1px solid ${Am}0.35)`:'1px solid rgba(255,255,255,0.08)',background:p.top?`${Am}0.08)`:'rgba(255,255,255,0.04)',position:'relative'}}>
+            {p.top&&<div style={{position:'absolute',top:-12,left:'50%',transform:'translateX(-50%)',background:`linear-gradient(135deg,${A},#C15151)`,color:'#fff',fontSize:11,padding:'4px 14px',borderRadius:100,fontWeight:600,whiteSpace:'nowrap'}}>Más Popular</div>}
+            <div style={{fontSize:14,color:'rgba(240,237,248,0.45)',marginBottom:6}}>{p.name}</div>
+            <div style={{fontSize:44,fontWeight:800,marginBottom:4,background:p.top?`linear-gradient(135deg,${A},#FFB347)`:undefined,WebkitBackgroundClip:p.top?'text':undefined,WebkitTextFillColor:p.top?'transparent':undefined}}>{p.price}</div>
+            <div style={{fontSize:13,color:'rgba(240,237,248,0.4)',marginBottom:22}}>{p.sub}</div>
+            {p.items.map(i=><div key={i} style={{display:'flex',gap:8,marginBottom:9,fontSize:14,color:'rgba(240,237,248,0.7)',alignItems:'flex-start'}}><span style={{color:A,flexShrink:0}}>✓</span>{i}</div>)}
+            <button style={{width:'100%',marginTop:22,padding:'13px',background:p.top?`linear-gradient(135deg,${A},#C15151)`:'rgba(255,255,255,0.08)',border:'none',color:'#fff',borderRadius:100,fontSize:14,cursor:'pointer',...jk,fontWeight:600}}>Empezar →</button>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'80px 72px'}}>
+      <div style={{textAlign:'center',marginBottom:52}}>
+        <p style={{fontSize:12,color:A,letterSpacing:3,marginBottom:12}}>TESTIMONIOS</p>
+        <h2 style={{fontSize:48,fontWeight:800,letterSpacing:'-1px'}}>Lo que dicen</h2>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:18}}>
+        {TESTI.map((t,i)=>(
+          <div key={i} style={{...gl,padding:'28px 24px',borderRadius:20}}>
+            <p style={{color:'rgba(240,237,248,0.7)',fontSize:15,lineHeight:1.75,marginBottom:18}}>{t.q}</p>
+            <p style={{color:`${Am}0.7)`,fontSize:13}}>{t.a}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'80px 72px',background:'rgba(0,0,0,0.2)',textAlign:'center'}}>
+      <h2 style={{fontSize:52,fontWeight:800,marginBottom:14,letterSpacing:'-1px'}}>¿Conversamos?</h2>
+      <p style={{color:'rgba(240,237,248,0.5)',fontSize:18,marginBottom:48}}>Cuéntame tu idea y te digo cómo hacerla realidad.</p>
+      <form style={{maxWidth:460,margin:'0 auto',display:'flex',flexDirection:'column',gap:13}} onSubmit={e=>e.preventDefault()}>
+        <Inp ph="Nombre" s={iS}/><Inp ph="Email" s={iS}/>
+        <Inp ph="Tu proyecto" multi s={{...iS,resize:'none'}}/>
+        <button type="submit" style={{background:`linear-gradient(135deg,${A},#C15151)`,border:'none',color:'#fff',padding:'15px',borderRadius:100,fontSize:16,cursor:'pointer',...jk,fontWeight:700,boxShadow:`0 8px 24px ${Am}0.25)`}}>Enviar →</button>
+      </form>
+    </section>
+    <footer style={{padding:'26px 72px',borderTop:'1px solid rgba(255,255,255,0.06)',display:'flex',justifyContent:'space-between',alignItems:'center',color:'rgba(240,237,248,0.25)',fontSize:12}}>
+      <span style={{fontSize:20,fontWeight:700,color:'#F0EDF8'}}>Bolivar</span>
+      <span>© 2025 · Luis Bolivar · Servicios Digitales</span>
+    </footer>
+  </div>);
+}
+
+/* ─────────────── P6 TERMINAL DEV ─────────────── */
+function P6(){
+  const A='#10B981', Am='rgba(16,185,129,', bg='#080F0C';
+  const mono={fontFamily:"'IBM Plex Mono',monospace"};
+  const sans={fontFamily:"'IBM Plex Sans',sans-serif"};
+  const iS={background:`${Am}0.04)`,border:`1px solid ${Am}0.12)`,color:'#E8F5EE',padding:'13px 16px',borderRadius:8,fontSize:13,...mono,outline:'none',width:'100%',display:'block'};
+  return (
+  <div style={{...sans,background:bg,color:'#E8F5EE'}}>
+    <nav style={{padding:'20px 72px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:`1px solid ${Am}0.12)`}}>
+      <div style={{display:'flex',alignItems:'center',gap:10}}>
+        <span style={{width:8,height:8,borderRadius:'50%',background:A,display:'inline-block',animation:'pulse 2s infinite'}}/>
+        <span style={{...mono,fontSize:17,fontWeight:600,color:A,letterSpacing:.5}}>bolivar.dev</span>
+      </div>
+      <div style={{display:'flex',gap:30,color:`${Am}0.45)`,fontSize:13,...mono}}>
+        {['/servicios','/proceso','/precios','/blog'].map(l=><a key={l} style={{color:'inherit',textDecoration:'none',cursor:'pointer'}}>{l}</a>)}
+      </div>
+      <button style={{background:'transparent',border:`1px solid ${Am}0.35)`,color:A,padding:'9px 22px',borderRadius:6,fontSize:13,cursor:'pointer',...mono}}>contactar →</button>
+    </nav>
+
+    <section style={{padding:'80px 72px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:64,alignItems:'center',minHeight:'92vh',position:'relative',overflow:'hidden'}}>
+      <div style={{position:'absolute',inset:0,backgroundImage:`linear-gradient(${Am}0.03) 1px,transparent 1px),linear-gradient(90deg,${Am}0.03) 1px,transparent 1px)`,backgroundSize:'48px 48px',pointerEvents:'none'}}/>
+      <div style={{position:'relative'}}>
+        <div style={{...mono,fontSize:12,color:`${Am}0.55)`,marginBottom:30,lineHeight:1.9}}>
+          {'// luis bolivar — digital services'}<br/>
+          {'// status: '}<span style={{color:A}}>● disponible</span><br/>
+          {'// stack: shopify · web · ai · retainer'}
+        </div>
+        <h1 style={{fontSize:68,fontWeight:700,lineHeight:1.02,letterSpacing:'-2px',marginBottom:24,animation:'fadeUp .7s ease forwards'}}>
+          Builds que<br/>convierten.<br/><span style={{color:A}}>Sin compromiso.</span>
+        </h1>
+        <p style={{fontSize:16,color:`${Am}0.55)`,lineHeight:1.8,maxWidth:420,marginBottom:40}}>
+          Shopify, landing pages y agentes IA construidos con código limpio, entregados a tiempo y optimizados para crecer.
+        </p>
+        <div style={{display:'flex',gap:14,flexWrap:'wrap'}}>
+          <button style={{background:A,border:'none',color:bg,padding:'14px 30px',borderRadius:8,fontSize:15,cursor:'pointer',...sans,fontWeight:700}}>iniciar proyecto →</button>
+          <button style={{background:'transparent',border:`1px solid ${Am}0.25)`,color:A,padding:'14px 30px',borderRadius:8,fontSize:15,cursor:'pointer',...mono}}>ver servicios</button>
+        </div>
+        <div style={{display:'flex',gap:28,marginTop:52,paddingTop:36,borderTop:`1px solid ${Am}0.1)`}}>
+          {[['20+','proyectos'],['4.9','rating'],['100%','on-time']].map(([v,l])=>(
+            <div key={l}><div style={{...mono,fontSize:26,color:A,fontWeight:600}}>{v}</div><div style={{fontSize:11,color:`${Am}0.4)`,...mono}}>{l}</div></div>
+          ))}
+        </div>
+      </div>
+      <div style={{background:'#0D1912',border:`1px solid ${Am}0.15)`,borderRadius:12,overflow:'hidden'}}>
+        <div style={{background:'#101F15',padding:'11px 18px',borderBottom:`1px solid ${Am}0.1)`,display:'flex',alignItems:'center',gap:7}}>
+          {['#FF5F57','#FEBC2E','#28C840'].map(c=><span key={c} style={{width:10,height:10,borderRadius:'50%',background:c,display:'inline-block'}}/>)}
+          <span style={{marginLeft:6,...mono,color:`${Am}0.3)`,fontSize:11}}>services.config.js</span>
+        </div>
+        <div style={{padding:'22px 26px',...mono,fontSize:13,lineHeight:2}}>
+          <div style={{color:`${Am}0.3)`}}>{'// Servicios Bolivar 2025'}</div>
+          <div><span style={{color:'#C084FC'}}>const</span> <span style={{color:'#60A5FA'}}>services</span> <span style={{color:`${Am}0.5)`}}>= {'{'}</span></div>
+          {SVC.map(s=><div key={s.tag} style={{paddingLeft:22}}><span style={{color:A}}>{s.tag.toLowerCase()}</span><span style={{color:`${Am}0.4)`}}>: </span><span style={{color:'#FCD34D'}}>'{s.tag.toLowerCase()}_activo'</span><span style={{color:`${Am}0.3)`}}>,</span></div>)}
+          <div><span style={{color:`${Am}0.5)`}}>{'};'}</span></div>
+          <div style={{marginTop:6,color:`${Am}0.3)`}}>{'// SLA garantizado'}</div>
+          <div><span style={{color:'#C084FC'}}>export const</span> <span style={{color:'#60A5FA'}}>sla</span> <span style={{color:`${Am}0.5)`}}>= {'{'}</span></div>
+          <div style={{paddingLeft:22}}><span style={{color:A}}>delivery</span><span style={{color:`${Am}0.4)`}}>: </span><span style={{color:'#FCD34D'}}>'100% on-time'</span><span style={{color:`${Am}0.3)`}}>,</span></div>
+          <div style={{paddingLeft:22}}><span style={{color:A}}>support</span><span style={{color:`${Am}0.4)`}}>: </span><span style={{color:'#FCD34D'}}>'24h response'</span><span style={{color:`${Am}0.3)`}}>,</span></div>
+          <div><span style={{color:`${Am}0.5)`}}>{'};'}</span></div>
+        </div>
+      </div>
+    </section>
+
+    {[{id:'svc',label:'Servicios',bg:'transparent',items:SVC,cols:4,render:(s,i)=>(
+      <div key={s.title} style={{background:`${Am}0.04)`,border:`1px solid ${Am}0.1)`,borderRadius:10,padding:'26px 20px'}}>
+        <div style={{...mono,fontSize:10,color:A,letterSpacing:1,marginBottom:12}}>0{i+1}.js</div>
+        <h3 style={{fontSize:17,fontWeight:600,marginBottom:9,lineHeight:1.3}}>{s.title}</h3>
+        <p style={{color:`${Am}0.45)`,fontSize:13,lineHeight:1.6}}>{s.desc}</p>
+      </div>
+    )},{id:'proc',label:'Proceso',bg:`${Am}0.02)`,items:STEPS,cols:4,render:(s,i)=>(
+      <div key={s.n} style={{background:`${Am}0.04)`,border:`1px solid ${Am}0.1)`,borderRadius:10,padding:'26px 20px'}}>
+        <div style={{...mono,fontSize:10,color:A,marginBottom:12}}>{s.n}.step</div>
+        <h3 style={{fontSize:18,fontWeight:600,marginBottom:8}}>{s.t}</h3>
+        <p style={{color:`${Am}0.45)`,fontSize:13,lineHeight:1.6}}>{s.d}</p>
+      </div>
+    )}].map(sec=>(
+      <section key={sec.id} style={{padding:'80px 72px',borderTop:`1px solid ${Am}0.07)`,background:sec.bg}}>
+        <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:44}}>
+          <span style={{...mono,color:A,fontSize:14}}>{'// '}</span>
+          <h2 style={{fontSize:44,fontWeight:700,letterSpacing:'-1px'}}>{sec.label}</h2>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:`repeat(${sec.cols},1fr)`,gap:16}}>
+          {sec.items.map((s,i)=>sec.render(s,i))}
+        </div>
+      </section>
+    ))}
+
+    <section style={{padding:'80px 72px'}}>
+      <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:44}}>
+        <span style={{...mono,color:A,fontSize:14}}>{'// '}</span>
+        <h2 style={{fontSize:44,fontWeight:700,letterSpacing:'-1px'}}>Precios</h2>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16,maxWidth:860,margin:'0 auto'}}>
+        {PLANS.map(p=>(
+          <div key={p.name} style={{background:p.top?`${Am}0.08)`:'transparent',border:p.top?`1px solid ${Am}0.3)`:`1px solid ${Am}0.1)`,borderRadius:10,padding:'30px 22px',position:'relative'}}>
+            {p.top&&<div style={{position:'absolute',top:-10,left:18,background:A,color:bg,fontSize:10,padding:'3px 12px',borderRadius:4,...mono,fontWeight:700}}>recommended</div>}
+            <div style={{...mono,fontSize:11,color:`${Am}0.4)`,marginBottom:7}}>{p.name.toLowerCase()}.plan</div>
+            <div style={{fontSize:38,fontWeight:700,color:p.top?A:'inherit',marginBottom:4}}>{p.price}</div>
+            <div style={{...mono,fontSize:11,color:`${Am}0.35)`,marginBottom:20}}>{p.sub}</div>
+            {p.items.map(i=><div key={i} style={{display:'flex',gap:8,marginBottom:9,fontSize:13,color:`${Am}0.7)`,alignItems:'flex-start'}}><span style={{color:A,flexShrink:0}}>+</span>{i}</div>)}
+            <button style={{width:'100%',marginTop:18,padding:'11px',background:p.top?A:'transparent',border:p.top?'none':`1px solid ${Am}0.2)`,color:p.top?bg:A,borderRadius:8,fontSize:13,cursor:'pointer',...mono,fontWeight:600}}>select →</button>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'80px 72px',background:`${Am}0.02)`,borderTop:`1px solid ${Am}0.07)`}}>
+      <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:44}}>
+        <span style={{...mono,color:A,fontSize:14}}>{'// '}</span>
+        <h2 style={{fontSize:44,fontWeight:700,letterSpacing:'-1px'}}>Testimonios</h2>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16}}>
+        {TESTI.map((t,i)=>(
+          <div key={i} style={{background:`${Am}0.04)`,border:`1px solid ${Am}0.1)`,borderRadius:10,padding:'26px 20px'}}>
+            <p style={{color:`${Am}0.7)`,fontSize:14,lineHeight:1.75,marginBottom:14}}>{t.q}</p>
+            <p style={{...mono,color:`${Am}0.4)`,fontSize:11}}>{t.a}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section style={{padding:'80px 72px',textAlign:'center'}}>
+      <div style={{...mono,fontSize:12,color:`${Am}0.45)`,marginBottom:18}}>{'// ¿listo para colaborar?'}</div>
+      <h2 style={{fontSize:52,fontWeight:700,letterSpacing:'-1.5px',marginBottom:14}}>Iniciemos tu proyecto</h2>
+      <p style={{color:`${Am}0.45)`,fontSize:17,marginBottom:44}}>{'Respondo en < 24 horas. Siempre.'}</p>
+      <form style={{maxWidth:420,margin:'0 auto',display:'flex',flexDirection:'column',gap:12}} onSubmit={e=>e.preventDefault()}>
+        <Inp ph="nombre" s={iS}/><Inp ph="email" s={iS}/>
+        <Inp ph="proyecto (descripción breve)" multi s={{...iS,resize:'none'}}/>
+        <button type="submit" style={{background:A,border:'none',color:bg,padding:'14px',borderRadius:8,fontSize:14,cursor:'pointer',...mono,fontWeight:700}}>enviar mensaje →</button>
+      </form>
+    </section>
+    <footer style={{padding:'22px 72px',borderTop:`1px solid ${Am}0.06)`,display:'flex',justifyContent:'space-between',alignItems:'center',color:`${Am}0.25)`,fontSize:12}}>
+      <span style={{...mono,fontSize:16,color:A,fontWeight:600}}>bolivar.dev</span>
+      <span style={{...mono}}>{'// © 2025 luis bolivar'}</span>
+    </footer>
+  </div>);
+}
+
+Object.assign(window,{P4,P5,P6});
+</script>
+
+<!-- ═══════════════════════════════════════════
+     BLOCK 4 — App shell + switcher
+═══════════════════════════════════════════ -->
+<script type="text/babel">
+const {useState,useEffect} = React;
+const {P1,P2,P3,P4,P5,P6} = window;
+
+const PROPS = [
+  {id:'noir',     label:'Noir Premium',  dot:'#8B5CF6', C:P1},
+  {id:'arctic',   label:'Arctic Neural', dot:'#00D4FF', C:P2},
+  {id:'gold',     label:'Obsidian Gold', dot:'#F0A500', C:P3},
+  {id:'brutal',   label:'Blanco Brutal', dot:'#C1440E', C:P4},
+  {id:'cosmos',   label:'Deep Cosmos',   dot:'#FF6B6B', C:P5},
+  {id:'terminal', label:'Terminal Dev',  dot:'#10B981', C:P6},
+];
+
+function App(){
+  const [idx,setIdx] = useState(()=>{
+    const n=parseInt(localStorage.getItem('bolivar-prop')||'0',10);
+    return isNaN(n)?0:Math.min(n,5);
+  });
+  useEffect(()=>{ localStorage.setItem('bolivar-prop',String(idx)); },[idx]);
+  const {C} = PROPS[idx];
+  return (
+    <>
+      <div className="sel-bar">
+        <span className="sel-lbl">PROPUESTA:</span>
+        {PROPS.map((p,i)=>(
+          <button key={p.id} className={`sel-btn${idx===i?' on':''}`} onClick={()=>setIdx(i)}>
+            <span className="dot" style={{background:p.dot}}/>
+            {String(i+1).padStart(2,'0')} {p.label}
+          </button>
+        ))}
+      </div>
+      <div className="pv"><C/></div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

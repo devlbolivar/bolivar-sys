@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BOLIVAR_SYS — Servicios Digitales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: #030D18; font-family: 'Space Grotesk', sans-serif; }
+    a { text-decoration: none; color: inherit; cursor: pointer; }
+    input, textarea { font-family: 'Space Mono', monospace; }
+    ::placeholder { opacity: .35; color: #00D4FF; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #030D18; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 2px; }
+    @keyframes fadeUp  { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:.25} }
+    @keyframes blink   { 0%,100%{opacity:1} 50%{opacity:0} }
+    @keyframes glowin  { 0%,100%{box-shadow:0 0 32px rgba(0,212,255,0.25)} 50%{box-shadow:0 0 52px rgba(0,212,255,0.5)} }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+/* ── TOKENS ────────────────────────────────────────── */
+const A   = '#00D4FF';
+const Am  = o => `rgba(0,212,255,${o})`;
+const BG  = '#030D18';
+const BG2 = '#071525';
+const mono = { fontFamily:"'Space Mono',monospace" };
+const grot = { fontFamily:"'Space Grotesk',sans-serif" };
+const glass = (extra={}) => ({
+  background: Am(0.04),
+  border: `1px solid ${Am(0.12)}`,
+  ...extra,
+});
+
+/* ── DATA ──────────────────────────────────────────── */
+const SVC = [
+  { icon:'⬡', tag:'Shopify',  title:'Tienda Shopify',       desc:'Setup completo con diseño custom, apps integradas y todo listo para vender desde el primer día.'     },
+  { icon:'◎', tag:'Web',      title:'Landing / Sitio',      desc:'Páginas de alta conversión que proyectan autoridad y generan confianza real en tu audiencia.'         },
+  { icon:'◈', tag:'IA',       title:'Chatbot / Agente IA',  desc:'Asistentes inteligentes que atienden, califican leads y venden por ti las 24 horas del día.'          },
+  { icon:'◉', tag:'Retainer', title:'Retainer Mensual',     desc:'Soporte continuo, optimización y actualizaciones para que tu plataforma nunca falle.'                 },
+];
+
+const PLANS = [
+  { name:'Starter', price:'$999',    sub:'Landing o tienda básica',       items:['Diseño personalizado','Hasta 5 páginas','SEO on-page','Formulario de contacto','14 días de soporte'] },
+  { name:'Growth',  price:'$2,499',  sub:'Proyecto completo + IA básica', items:['Todo Starter','Apps + pasarelas de pago','Chatbot IA integrado','Analytics avanzado','30 días de soporte'], top:true },
+  { name:'Scale',   price:'$4,999+', sub:'Enterprise + agente IA custom', items:['Todo Growth','Agente IA entrenado','Retainer incluido','Reportes quincenales','Soporte prioritario'] },
+];
+
+const STEPS = [
+  { n:'01', t:'Discovery',   d:'Entendemos tu negocio, objetivos y audiencia ideal en profundidad.' },
+  { n:'02', t:'Diseño',      d:'Prototipo visual que apruebas antes de escribir una sola línea de código.' },
+  { n:'03', t:'Desarrollo',  d:'Código limpio, optimizado y sin deudas técnicas que te persigan después.' },
+  { n:'04', t:'Lanzamiento', d:'QA completo, deploy y entrega con soporte post-lanzamiento incluido.' },
+];
+
+const TESTI = [
+  { q:'Nuestra tienda pasó de cero a $80k en ventas el primer trimestre. Luis entregó a tiempo y el resultado fue mejor de lo que esperábamos.', a:'— Mariana G., Noix Studio' },
+  { q:'El agente IA responde el 90% de las consultas solo. Ahorramos horas de atención al cliente cada semana. Totalmente recomendado.', a:'— Carlos R., Innova Supply' },
+  { q:'Profesional, puntual y con un ojo increíble para el diseño. El retainer mensual vale cada peso que pagamos.', a:'— Sofía M., Bloom Co.' },
+];
+
+const FAQS = [
+  { q:'¿Cuánto tiempo tarda un proyecto típico?', a:'Un landing page toma 1–2 semanas. Una tienda Shopify completa, 2–4 semanas. Los proyectos con agente IA pueden tomar 4–6 semanas según la complejidad.' },
+  { q:'¿Qué necesito para empezar?', a:'Solo una llamada de 30 min para entender tu negocio. Si ya tienes logo, paleta de colores y una idea del proyecto, mejor. Si no, lo resolvemos juntos.' },
+  { q:'¿Ofrecen soporte después del lanzamiento?', a:'Sí. Todos los planes incluyen soporte post-lanzamiento (14–30 días según el plan). También ofrezco retainers mensuales para soporte continuo.' },
+  { q:'¿Puedo ver proyectos anteriores antes de contratar?', a:'Por supuesto. Durante la llamada de discovery te comparto el portafolio completo con métricas reales de cada proyecto.' },
+  { q:'¿Trabajan con negocios de cualquier industria?', a:'Sí. He trabajado con moda, alimentos, servicios profesionales, salud y tecnología. Si vendes algo, puedo construir la plataforma para venderlo mejor.' },
+];
+
+/* ── NAV ───────────────────────────────────────────── */
+function Nav() {
+  return (
+    <nav style={{
+      position:'sticky', top:0, zIndex:100,
+      padding:'18px 80px',
+      display:'flex', alignItems:'center', justifyContent:'space-between',
+      background:'rgba(3,13,24,0.88)',
+      backdropFilter:'blur(20px)',
+      borderBottom:`1px solid ${Am(0.08)}`,
+    }}>
+      <a href="#top">
+        <span style={{...mono, fontSize:17, fontWeight:700, color:A, letterSpacing:2}}>BOLIVAR_SYS</span>
+      </a>
+      <div style={{display:'flex', gap:32, color:Am(0.45), fontSize:13, ...mono}}>
+        {[['.servicios','#servicios'],['.proceso','#proceso'],['.precios','#precios'],['.faq','#faq']].map(([l,h])=>(
+          <a key={l} href={h}
+            style={{color:'inherit', transition:'color .15s'}}
+            onMouseEnter={e=>e.target.style.color=A}
+            onMouseLeave={e=>e.target.style.color=Am(0.45)}>{l}</a>
+        ))}
+      </div>
+      <a href="#contacto">
+        <button style={{
+          background:'transparent', border:`1px solid ${A}`, color:A,
+          padding:'9px 22px', borderRadius:6, fontSize:13, cursor:'pointer',
+          ...mono, letterSpacing:1, transition:'background .2s',
+        }}
+          onMouseEnter={e=>e.currentTarget.style.background=Am(0.1)}
+          onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+          CONTACTAR →
+        </button>
+      </a>
+    </nav>
+  );
+}
+
+/* ── HERO ──────────────────────────────────────────── */
+function Hero() {
+  return (
+    <section id="top" data-screen-label="Hero" style={{
+      padding:'90px 80px 110px',
+      display:'grid', gridTemplateColumns:'1fr 460px', gap:72,
+      alignItems:'center', minHeight:'91vh',
+      position:'relative', overflow:'hidden',
+    }}>
+      {/* Grid overlay */}
+      <div style={{
+        position:'absolute', inset:0,
+        backgroundImage:`linear-gradient(${Am(0.04)} 1px,transparent 1px),linear-gradient(90deg,${Am(0.04)} 1px,transparent 1px)`,
+        backgroundSize:'72px 72px', pointerEvents:'none',
+      }}/>
+      {/* Glow orb */}
+      <div style={{
+        position:'absolute', right:'28%', top:'46%', transform:'translateY(-50%)',
+        width:560, height:560, borderRadius:'50%',
+        background:`radial-gradient(circle,${Am(0.11)} 0%,transparent 65%)`,
+        pointerEvents:'none',
+      }}/>
+
+      {/* COPY */}
+      <div style={{position:'relative'}}>
+        <div style={{...mono, fontSize:11, color:Am(0.55), letterSpacing:2, marginBottom:32, lineHeight:2.1}}>
+          <span>&gt; SISTEMA INICIADO</span><br/>
+          <span style={{color:Am(0.35)}}>&gt; CARGANDO SERVICIOS...</span><br/>
+          <span style={{color:'#22C55E'}}>&gt; LISTO&nbsp;
+            <span style={{
+              display:'inline-block', width:7, height:7, borderRadius:'50%',
+              background:'#22C55E', verticalAlign:'middle', marginLeft:4,
+              animation:'pulse 2s infinite',
+            }}/>
+          </span>
+        </div>
+
+        <h1 style={{
+          ...grot, fontSize:76, fontWeight:700, lineHeight:1.02,
+          letterSpacing:'-2.5px', marginBottom:24, color:'#E8F4F8',
+          animation:'fadeUp .7s ease both',
+          textWrap:'pretty',
+        }}>
+          Tecnología que<br/>Convierte Visitas<br/>
+          <span style={{color:A}}>en Ventas.</span>
+        </h1>
+
+        <p style={{
+          fontSize:18, color:Am(0.5), lineHeight:1.85, maxWidth:480,
+          marginBottom:44, animation:'fadeUp .7s .12s ease both',
+        }}>
+          Shopify, landing pages, agentes IA y soporte mensual para emprendedores que entienden que el resultado lo es todo.
+        </p>
+
+        <div style={{display:'flex', gap:14, marginBottom:60, animation:'fadeUp .7s .22s ease both', flexWrap:'wrap'}}>
+          <a href="#contacto">
+            <button style={{
+              background:A, border:'none', color:BG,
+              padding:'15px 38px', borderRadius:6, fontSize:15,
+              cursor:'pointer', ...grot, fontWeight:700,
+              boxShadow:`0 0 36px ${Am(0.32)}`,
+              transition:'box-shadow .2s',
+            }}
+              onMouseEnter={e=>e.currentTarget.style.boxShadow=`0 0 56px ${Am(0.5)}`}
+              onMouseLeave={e=>e.currentTarget.style.boxShadow=`0 0 36px ${Am(0.32)}`}>
+              Iniciar Proyecto →
+            </button>
+          </a>
+          <a href="#servicios">
+            <button style={{
+              background:'transparent', border:`1px solid ${Am(0.3)}`, color:A,
+              padding:'15px 38px', borderRadius:6, fontSize:15, cursor:'pointer', ...grot,
+              transition:'border-color .2s',
+            }}
+              onMouseEnter={e=>e.currentTarget.style.borderColor=Am(0.6)}
+              onMouseLeave={e=>e.currentTarget.style.borderColor=Am(0.3)}>
+              Ver Servicios
+            </button>
+          </a>
+        </div>
+
+        {/* Stat chips */}
+        <div style={{display:'flex', gap:14, flexWrap:'wrap', animation:'fadeUp .7s .34s ease both'}}>
+          {[['20+','proyectos'],['4.9★','rating'],['100%','entrega'],['IA','incluida']].map(([v,l])=>(
+            <div key={l} style={{...glass({borderRadius:12}), padding:'13px 20px', textAlign:'center'}}>
+              <div style={{...mono, fontSize:18, color:A, fontWeight:700}}>{v}</div>
+              <div style={{fontSize:11, color:Am(0.38), marginTop:3}}>{l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* TERMINAL */}
+      <div style={{
+        ...glass({borderRadius:14, overflow:'hidden'}),
+        ...mono, fontSize:13, lineHeight:2.1,
+        animation:'fadeUp .7s .18s ease both',
+        boxShadow:`0 0 60px ${Am(0.07)}, 0 0 120px ${Am(0.04)}`,
+      }}>
+        <div style={{
+          background:'#071F35', padding:'13px 18px',
+          borderBottom:`1px solid ${Am(0.1)}`,
+          display:'flex', alignItems:'center', gap:8,
+        }}>
+          {['#FF5F57','#FEBC2E','#28C840'].map(c=>(
+            <span key={c} style={{width:11,height:11,borderRadius:'50%',background:c,display:'inline-block'}}/>
+          ))}
+          <span style={{marginLeft:8, color:Am(0.28), fontSize:11}}>bolivar-sys.sh</span>
+        </div>
+        <div style={{padding:'26px 28px'}}>
+          <div style={{color:Am(0.6)}}>$ <span style={{color:A}}>bolivar</span> --services</div>
+          <div style={{color:Am(0.3)}}># Servicios disponibles:</div>
+          {SVC.map(s=>(
+            <div key={s.tag}>
+              <span style={{color:'#22C55E'}}>✓ </span>
+              <span style={{color:'#E8F4F8'}}>{s.tag.toLowerCase()}</span>
+              <span style={{color:Am(0.28)}}> --activo</span>
+            </div>
+          ))}
+          <div style={{marginTop:10, color:Am(0.6)}}>$ <span style={{color:A}}>status</span> --check</div>
+          <div style={{color:'#22C55E'}}>✓ on-time: 100% · rating: 4.9/5</div>
+          <div style={{marginTop:4, color:Am(0.6)}}>$&nbsp;
+            <span style={{color:A, animation:'blink 1s step-end infinite', display:'inline-block'}}>█</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── SERVICES ──────────────────────────────────────── */
+function Services() {
+  return (
+    <section id="servicios" data-screen-label="Servicios" style={{
+      padding:'80px', background:BG2,
+      borderTop:`1px solid ${Am(0.07)}`,
+    }}>
+      <div style={{marginBottom:52}}>
+        <p style={{...mono, fontSize:11, color:A, letterSpacing:3, marginBottom:12}}>&gt; SERVICIOS.LIST()</p>
+        <h2 style={{...grot, fontSize:48, fontWeight:700, letterSpacing:'-1.5px', color:'#E8F4F8'}}>Qué construimos</h2>
+      </div>
+      <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:18}}>
+        {SVC.map(s=>(
+          <div key={s.title} style={{
+            ...glass({borderRadius:16}),
+            padding:'30px 24px',
+            transition:'border-color .22s, background .22s',
+          }}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor=Am(0.32);e.currentTarget.style.background=Am(0.07);}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor=Am(0.12);e.currentTarget.style.background=Am(0.04);}}>
+            <div style={{...mono, fontSize:10, color:A, marginBottom:14, letterSpacing:1}}>[{s.tag}]</div>
+            <div style={{fontSize:24, marginBottom:14, color:A}}>{s.icon}</div>
+            <h3 style={{fontSize:18, fontWeight:700, marginBottom:10, lineHeight:1.3, color:'#E8F4F8'}}>{s.title}</h3>
+            <p style={{color:Am(0.5), fontSize:14, lineHeight:1.75}}>{s.desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── PROCESS ───────────────────────────────────────── */
+function Process() {
+  return (
+    <section id="proceso" data-screen-label="Proceso" style={{
+      padding:'80px',
+      borderTop:`1px solid ${Am(0.07)}`,
+    }}>
+      <div style={{marginBottom:52}}>
+        <p style={{...mono, fontSize:11, color:A, letterSpacing:3, marginBottom:12}}>&gt; PROCESO.EXEC()</p>
+        <h2 style={{...grot, fontSize:48, fontWeight:700, letterSpacing:'-1.5px', color:'#E8F4F8'}}>Del brief al lanzamiento</h2>
+      </div>
+      <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:18}}>
+        {STEPS.map((s,i)=>(
+          <div key={s.n} style={{...glass({borderRadius:16}), padding:'28px 24px', position:'relative'}}>
+            {i < STEPS.length-1 && (
+              <div style={{
+                position:'absolute', right:-10, top:34,
+                width:20, height:1, background:Am(0.2),
+              }}/>
+            )}
+            <div style={{
+              ...mono, fontSize:52, color:Am(0.07), fontWeight:700,
+              lineHeight:1, marginBottom:20, letterSpacing:'-2px',
+            }}>{s.n}</div>
+            <h3 style={{fontSize:20, fontWeight:700, marginBottom:10, color:'#E8F4F8'}}>{s.t}</h3>
+            <p style={{color:Am(0.5), fontSize:14, lineHeight:1.75}}>{s.d}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── PRICING ───────────────────────────────────────── */
+function Pricing() {
+  return (
+    <section id="precios" data-screen-label="Precios" style={{
+      padding:'80px', background:BG2,
+      borderTop:`1px solid ${Am(0.07)}`,
+    }}>
+      <div style={{marginBottom:52}}>
+        <p style={{...mono, fontSize:11, color:A, letterSpacing:3, marginBottom:12}}>&gt; PRICING.GET()</p>
+        <h2 style={{...grot, fontSize:48, fontWeight:700, letterSpacing:'-1.5px', color:'#E8F4F8'}}>Inversión</h2>
+      </div>
+      <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20, maxWidth:920, margin:'0 auto'}}>
+        {PLANS.map(p=>(
+          <div key={p.name} style={{
+            ...glass({
+              borderRadius:20,
+              background: p.top ? Am(0.08) : Am(0.03),
+              border: p.top ? `1px solid ${Am(0.38)}` : `1px solid ${Am(0.1)}`,
+              boxShadow: p.top ? `0 0 48px ${Am(0.1)}` : 'none',
+            }),
+            padding:'36px 28px', position:'relative',
+          }}>
+            {p.top && (
+              <div style={{
+                position:'absolute', top:-12, right:20,
+                background:A, color:BG, ...mono, fontSize:10,
+                padding:'4px 14px', borderRadius:6, fontWeight:700, letterSpacing:1,
+              }}>POPULAR</div>
+            )}
+            <div style={{...mono, fontSize:11, color:A, marginBottom:10, letterSpacing:1}}>[{p.name.toLowerCase()}]</div>
+            <div style={{fontSize:44, fontWeight:700, color: p.top ? A : '#E8F4F8', marginBottom:4, ...grot, letterSpacing:'-1px'}}>{p.price}</div>
+            <div style={{...mono, fontSize:12, color:Am(0.38), marginBottom:24}}>{p.sub}</div>
+            <div style={{display:'flex', flexDirection:'column', gap:9}}>
+              {p.items.map(item=>(
+                <div key={item} style={{display:'flex', gap:8, fontSize:14, color:Am(0.68), alignItems:'flex-start'}}>
+                  <span style={{color:A, flexShrink:0}}>→</span>{item}
+                </div>
+              ))}
+            </div>
+            <a href="#contacto">
+              <button style={{
+                width:'100%', marginTop:28, padding:'13px',
+                background: p.top ? A : 'transparent',
+                border: p.top ? 'none' : `1px solid ${Am(0.25)}`,
+                color: p.top ? BG : A,
+                borderRadius:8, fontSize:13, cursor:'pointer',
+                ...mono, fontWeight:700, letterSpacing:.5,
+                transition:'opacity .15s',
+              }}
+                onMouseEnter={e=>e.currentTarget.style.opacity='.85'}
+                onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
+                SELECCIONAR →
+              </button>
+            </a>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── PERSONAL / VIDEO ──────────────────────────────── */
+function VideoSection() {
+  return (
+    <section data-screen-label="Intro personal" style={{
+      padding:'88px 80px',
+      borderTop:`1px solid ${Am(0.07)}`,
+    }}>
+      <div style={{
+        display:'grid', gridTemplateColumns:'1fr 1fr', gap:80,
+        alignItems:'center', maxWidth:1100, margin:'0 auto',
+      }}>
+        <div>
+          <p style={{...mono, fontSize:11, color:A, letterSpacing:3, marginBottom:16}}>&gt; LUIS.INTRO()</p>
+          <h2 style={{
+            ...grot, fontSize:52, fontWeight:700, lineHeight:1.05,
+            letterSpacing:'-1.5px', color:'#E8F4F8', marginBottom:22,
+            textWrap:'pretty',
+          }}>
+            Hola, soy Luis.<br/>Construyo sistemas<br/>que venden.
+          </h2>
+          <p style={{fontSize:16, color:Am(0.5), lineHeight:1.85, marginBottom:36}}>
+            Más de 3 años construyendo plataformas digitales para emprendedores en Latinoamérica. No solo código — estrategia, diseño y resultados medibles.
+          </p>
+          <div style={{display:'flex', gap:36}}>
+            {[['20+','Proyectos'],['3+','Años'],['4.9','Promedio']].map(([v,l])=>(
+              <div key={l}>
+                <div style={{...mono, fontSize:28, color:A, fontWeight:700}}>{v}</div>
+                <div style={{fontSize:12, color:Am(0.38), marginTop:2}}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Video placeholder */}
+        <div style={{
+          ...glass({
+            borderRadius:20, overflow:'hidden',
+            boxShadow:`0 0 64px ${Am(0.07)}`,
+          }),
+          aspectRatio:'16/9', position:'relative', cursor:'pointer',
+          transition:'box-shadow .3s',
+        }}
+          onMouseEnter={e=>e.currentTarget.style.boxShadow=`0 0 80px ${Am(0.18)}`}
+          onMouseLeave={e=>e.currentTarget.style.boxShadow=`0 0 64px ${Am(0.07)}`}>
+          {/* Striped BG */}
+          <div style={{
+            position:'absolute', inset:0,
+            backgroundImage:`repeating-linear-gradient(45deg,${Am(0.04)} 0px,${Am(0.04)} 1px,transparent 1px,transparent 14px)`,
+          }}/>
+          <div style={{
+            position:'absolute', inset:0,
+            display:'flex', flexDirection:'column',
+            alignItems:'center', justifyContent:'center', gap:18,
+          }}>
+            <div style={{
+              width:68, height:68, borderRadius:'50%',
+              border:`2px solid ${A}`,
+              display:'flex', alignItems:'center', justifyContent:'center',
+              boxShadow:`0 0 32px ${Am(0.35)}`,
+              animation:'glowin 3s ease-in-out infinite',
+            }}>
+              <span style={{color:A, fontSize:22, marginLeft:5}}>▶</span>
+            </div>
+            <span style={{...mono, fontSize:11, color:Am(0.45), letterSpacing:2}}>
+              VIDEO DE PRESENTACIÓN
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── TESTIMONIALS ──────────────────────────────────── */
+function Testimonials() {
+  return (
+    <section data-screen-label="Testimonios" style={{
+      padding:'80px', background:BG2,
+      borderTop:`1px solid ${Am(0.07)}`,
+    }}>
+      <div style={{marginBottom:52}}>
+        <p style={{...mono, fontSize:11, color:A, letterSpacing:3, marginBottom:12}}>&gt; TESTIMONIOS.LOG()</p>
+        <h2 style={{...grot, fontSize:48, fontWeight:700, letterSpacing:'-1.5px', color:'#E8F4F8'}}>
+          Clientes reales,<br/>resultados reales.
+        </h2>
+      </div>
+      <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:18}}>
+        {TESTI.map((t,i)=>(
+          <div key={i} style={{...glass({borderRadius:16}), padding:'32px 28px'}}>
+            <div style={{...mono, fontSize:36, color:Am(0.2), lineHeight:.8, marginBottom:18}}>"</div>
+            <p style={{color:Am(0.72), fontSize:15, lineHeight:1.85, marginBottom:22}}>{t.q}</p>
+            <p style={{...mono, color:Am(0.38), fontSize:11}}>{t.a}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── FAQ ───────────────────────────────────────────── */
+function FAQ() {
+  const [open, setOpen] = useState(null);
+  return (
+    <section id="faq" data-screen-label="FAQ" style={{
+      padding:'80px',
+      borderTop:`1px solid ${Am(0.07)}`,
+    }}>
+      <div style={{marginBottom:52}}>
+        <p style={{...mono, fontSize:11, color:A, letterSpacing:3, marginBottom:12}}>&gt; FAQ.QUERY()</p>
+        <h2 style={{...grot, fontSize:48, fontWeight:700, letterSpacing:'-1.5px', color:'#E8F4F8'}}>Preguntas frecuentes</h2>
+      </div>
+      <div style={{maxWidth:780, display:'flex', flexDirection:'column', gap:10}}>
+        {FAQS.map((f,i)=>(
+          <div key={i} style={{
+            ...glass({
+              borderRadius:12,
+              borderColor: open===i ? Am(0.3) : Am(0.12),
+              transition:'border-color .2s',
+            }),
+            overflow:'hidden',
+          }}>
+            <button onClick={()=>setOpen(open===i?null:i)} style={{
+              width:'100%', background:'none', border:'none',
+              padding:'20px 24px',
+              display:'flex', alignItems:'center', justifyContent:'space-between',
+              cursor:'pointer', textAlign:'left', gap:16,
+            }}>
+              <span style={{fontSize:16, fontWeight:600, color:'#E8F4F8', ...grot}}>{f.q}</span>
+              <span style={{
+                ...mono, color:A, fontSize:20, flexShrink:0,
+                transition:'transform .25s',
+                transform: open===i ? 'rotate(45deg)' : 'none',
+                display:'inline-block',
+              }}>+</span>
+            </button>
+            <div style={{
+              maxHeight: open===i ? 200 : 0,
+              overflow:'hidden', transition:'max-height .32s ease',
+            }}>
+              <p style={{padding:'0 24px 22px', color:Am(0.55), fontSize:15, lineHeight:1.85}}>{f.a}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── CONTACT ───────────────────────────────────────── */
+function Contact() {
+  const iStyle = {
+    background:Am(0.04), border:`1px solid ${Am(0.15)}`,
+    color:'#E8F4F8', padding:'14px 18px', borderRadius:8,
+    fontSize:13, ...mono, outline:'none', width:'100%', display:'block',
+    transition:'border-color .2s',
+  };
+  return (
+    <section id="contacto" data-screen-label="Contacto" style={{
+      padding:'88px 80px', background:BG2,
+      borderTop:`1px solid ${Am(0.07)}`,
+    }}>
+      <div style={{
+        display:'grid', gridTemplateColumns:'1fr 1fr', gap:80,
+        alignItems:'start', maxWidth:1100, margin:'0 auto',
+      }}>
+        <div>
+          <p style={{...mono, fontSize:11, color:A, letterSpacing:3, marginBottom:16}}>&gt; CONTACT.INIT()</p>
+          <h2 style={{
+            ...grot, fontSize:56, fontWeight:700, lineHeight:1.0,
+            letterSpacing:'-2px', color:'#E8F4F8', marginBottom:22,
+          }}>
+            Hablemos de<br/>tu proyecto.
+          </h2>
+          <p style={{fontSize:16, color:Am(0.5), lineHeight:1.85, marginBottom:40}}>
+            Respondo en menos de 24h. Sin compromisos, sin rodeos — una conversación honesta sobre lo que necesita tu negocio.
+          </p>
+          <div style={{display:'flex', flexDirection:'column', gap:14}}>
+            {[
+              ['→','Trabajo con clientes en toda Latinoamérica'],
+              ['→','Primera consulta gratuita de 30 min'],
+              ['→','Contrato claro, precios transparentes'],
+            ].map(([ico,txt])=>(
+              <div key={txt} style={{display:'flex', gap:12, alignItems:'center', color:Am(0.5), fontSize:15}}>
+                <span style={{color:A, ...mono}}>{ico}</span><span>{txt}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <form style={{display:'flex', flexDirection:'column', gap:14}} onSubmit={e=>e.preventDefault()}>
+          <input placeholder="nombre" style={iStyle}
+            onFocus={e=>e.target.style.borderColor=Am(0.45)}
+            onBlur={e=>e.target.style.borderColor=Am(0.15)}/>
+          <input placeholder="email" style={iStyle}
+            onFocus={e=>e.target.style.borderColor=Am(0.45)}
+            onBlur={e=>e.target.style.borderColor=Am(0.15)}/>
+          <textarea placeholder="descripción del proyecto" rows={4} style={{...iStyle,resize:'none'}}
+            onFocus={e=>e.target.style.borderColor=Am(0.45)}
+            onBlur={e=>e.target.style.borderColor=Am(0.15)}/>
+          <button type="submit" style={{
+            background:A, border:'none', color:BG,
+            padding:'15px', borderRadius:8, fontSize:15, cursor:'pointer',
+            ...grot, fontWeight:700, letterSpacing:.5,
+            boxShadow:`0 0 32px ${Am(0.28)}`,
+            transition:'box-shadow .2s',
+          }}
+            onMouseEnter={e=>e.currentTarget.style.boxShadow=`0 0 56px ${Am(0.45)}`}
+            onMouseLeave={e=>e.currentTarget.style.boxShadow=`0 0 32px ${Am(0.28)}`}>
+            ENVIAR MENSAJE →
+          </button>
+        </form>
+      </div>
+    </section>
+  );
+}
+
+/* ── FOOTER ────────────────────────────────────────── */
+function Footer() {
+  return (
+    <footer style={{
+      padding:'24px 80px',
+      borderTop:`1px solid ${Am(0.08)}`,
+      display:'flex', justifyContent:'space-between', alignItems:'center',
+    }}>
+      <span style={{...mono, fontSize:16, color:A, fontWeight:700}}>BOLIVAR_SYS</span>
+      <span style={{...mono, fontSize:12, color:Am(0.25)}}>© 2025 · LUIS_BOLIVAR · SERVICIOS DIGITALES</span>
+    </footer>
+  );
+}
+
+/* ── APP ───────────────────────────────────────────── */
+function App() {
+  return (
+    <div style={{...grot, background:BG, color:'#E8F4F8', minHeight:'100vh'}}>
+      <Nav/>
+      <Hero/>
+      <Services/>
+      <Process/>
+      <Pricing/>
+      <VideoSection/>
+      <Testimonials/>
+      <FAQ/>
+      <Contact/>
+      <Footer/>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
