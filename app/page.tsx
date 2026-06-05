@@ -15,7 +15,7 @@ import Footer from '@/components/Footer'
 
 export default function Home() {
   return (
-    <div style={{ background: '#030D18', color: '#E8F4F8', minHeight: '100vh' }}>
+    <div className="pageWrapper">
       <ScrollProgress />
       <Nav />
       <Hero />

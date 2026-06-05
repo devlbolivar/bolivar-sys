@@ -1,0 +1,32 @@
+.strip {
+  border-top: 1px solid rgba(0,212,255,.07);
+  border-bottom: 1px solid rgba(0,212,255,.07);
+  padding: 16px 80px;
+  background: #071525;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.label {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: rgba(0,212,255,.28);
+  letter-spacing: 2px;
+  flex-shrink: 0;
+}
+
+.item {
+  background: rgba(0,212,255,.04);
+  border: 1px solid rgba(0,212,255,.12);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: rgba(0,212,255,.52);
+}
+
+@media (max-width: 767px) {
+  .strip { padding: 14px 24px; }
+}

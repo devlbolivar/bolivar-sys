@@ -1,3 +1,11 @@
+:root {
+  --accent:   #00D4FF;
+  --bg:       #030D18;
+  --bg2:      #071525;
+  --text:     #E8F4F8;
+  --green:    #22C55E;
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
@@ -12,6 +20,12 @@ input, textarea { font-family: var(--font-mono), monospace; }
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: #030D18; }
 ::-webkit-scrollbar-thumb { background: rgba(0,212,255,.2); border-radius: 2px; }
+
+.pageWrapper {
+  background: #030D18;
+  color: #E8F4F8;
+  min-height: 100vh;
+}
 
 @keyframes fadeUp  { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
 @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:.22} }

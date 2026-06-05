@@ -10,3 +10,6 @@ out/
 *.pem
 .env*
 !.env.example
+
+.todo.md
+todo.md

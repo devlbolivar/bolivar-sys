@@ -1,15 +1,16 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
+import { useRef, useState, useEffect } from 'react'
+import styles from './FadeIn.module.css'
 
 interface FadeInProps {
   children: ReactNode
   delay?: number
-  style?: CSSProperties
+  className?: string
 }
 
-export default function FadeIn({ children, delay = 0, style = {} }: FadeInProps) {
+export default function FadeIn({ children, delay = 0, className = '' }: FadeInProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [vis, setVis] = useState(false)
 
@@ -30,12 +31,8 @@ export default function FadeIn({ children, delay = 0, style = {} }: FadeInProps)
   return (
     <div
       ref={ref}
-      style={{
-        opacity: vis ? 1 : 0,
-        transform: vis ? 'translateY(0)' : 'translateY(22px)',
-        transition: `opacity .65s ${delay}s ease, transform .65s ${delay}s ease`,
-        ...style,
-      }}
+      className={`${styles.base} ${vis ? styles.visible : ''} ${className}`.trim()}
+      style={{ '--delay': `${delay}s` } as CSSProperties}
     >
       {children}
     </div>

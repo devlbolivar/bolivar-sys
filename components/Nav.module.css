@@ -1,0 +1,111 @@
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 18px 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(3,13,24,0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,212,255,.08);
+}
+
+.logo {
+  font-family: var(--font-mono), monospace;
+  font-size: 17px;
+  font-weight: 700;
+  color: #00D4FF;
+  letter-spacing: 2px;
+}
+
+.links {
+  display: flex;
+  gap: 32px;
+  color: rgba(0,212,255,.42);
+  font-size: 13px;
+  font-family: var(--font-mono), monospace;
+}
+
+.link {
+  color: inherit;
+  transition: color .15s;
+}
+.link:hover { color: #00D4FF; }
+
+.ctaWrapper { display: block; }
+
+.cta {
+  background: transparent;
+  border: 1px solid #00D4FF;
+  color: #00D4FF;
+  padding: 9px 22px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--font-mono), monospace;
+  letter-spacing: 1px;
+  transition: background .2s, box-shadow .2s;
+}
+.cta:hover {
+  background: rgba(0,212,255,.1);
+  box-shadow: 0 0 20px rgba(0,212,255,.2);
+}
+
+.hamburger {
+  display: none;
+  background: none;
+  border: 1px solid rgba(0,212,255,.2);
+  color: #00D4FF;
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-family: var(--font-mono), monospace;
+}
+
+.mobileMenu {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: rgba(3,13,24,0.97);
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  padding-top: 64px;
+}
+
+.mobileLink {
+  font-family: var(--font-mono), monospace;
+  font-size: 20px;
+  color: rgba(0,212,255,.7);
+  letter-spacing: 2px;
+}
+
+.mobileCta {
+  margin-top: 16px;
+  background: #00D4FF;
+  border: none;
+  color: #030D18;
+  padding: 14px 44px;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  font-family: var(--font-mono), monospace;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 767px) {
+  .nav { padding: 16px 24px; }
+  .logo { font-size: 15px; }
+  .links { display: none; }
+  .ctaWrapper { display: none; }
+  .hamburger { display: flex; }
+}

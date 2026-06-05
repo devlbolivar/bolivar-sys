@@ -1,0 +1,10 @@
+.base {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity .65s var(--delay, 0s) ease, transform .65s var(--delay, 0s) ease;
+}
+.visible {
+  opacity: 1;
+  transform: none;
+}
+.flex { display: flex; }

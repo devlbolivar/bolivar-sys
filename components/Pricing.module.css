@@ -1,0 +1,141 @@
+.section {
+  padding: 80px;
+  background: #071525;
+  border-top: 1px solid rgba(0,212,255,.07);
+}
+
+.header { margin-bottom: 52px; }
+
+.tag {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: #00D4FF;
+  letter-spacing: 3px;
+  margin-bottom: 14px;
+}
+
+.h2 {
+  font-family: var(--font-grotesk), sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  color: #E8F4F8;
+  text-wrap: pretty;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 940px;
+  margin: 0 auto;
+}
+
+.flex { display: flex; }
+
+.card {
+  background: rgba(0,212,255,.03);
+  border: 1px solid rgba(0,212,255,.1);
+  border-radius: 20px;
+  padding: 36px 28px;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardFeatured {
+  background: rgba(0,212,255,.08);
+  border-color: rgba(0,212,255,.38);
+  box-shadow: 0 0 52px rgba(0,212,255,.1);
+}
+
+.badge {
+  position: absolute;
+  top: -12px;
+  right: 20px;
+  background: #00D4FF;
+  color: #030D18;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  padding: 4px 14px;
+  border-radius: 6px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.planName {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: #00D4FF;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.price {
+  font-family: var(--font-grotesk), sans-serif;
+  font-size: 44px;
+  font-weight: 700;
+  color: #E8F4F8;
+  margin-bottom: 4px;
+  letter-spacing: -1px;
+}
+
+.priceFeatured { color: #00D4FF; }
+
+.sub {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: rgba(0,212,255,.38);
+  margin-bottom: 24px;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.item {
+  display: flex;
+  gap: 9px;
+  font-size: 14px;
+  color: rgba(0,212,255,.68);
+  align-items: flex-start;
+}
+
+.itemArrow {
+  color: #00D4FF;
+  flex-shrink: 0;
+}
+
+.btn {
+  width: 100%;
+  margin-top: 28px;
+  padding: 13px;
+  background: transparent;
+  border: 1px solid rgba(0,212,255,.25);
+  color: #00D4FF;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--font-mono), monospace;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: opacity .15s;
+}
+.btn:hover { opacity: .8; }
+
+.btnFeatured {
+  background: #00D4FF;
+  border: none;
+  color: #030D18;
+}
+
+@media (max-width: 767px) {
+  .section { padding: 60px 24px; }
+  .header  { margin-bottom: 36px; }
+  .h2      { font-size: 32px; }
+  .grid    { grid-template-columns: 1fr; }
+}
