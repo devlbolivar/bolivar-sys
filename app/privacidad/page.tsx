@@ -61,7 +61,7 @@ export default function Privacidad() {
       </ul>
       <p>
         Para ejercer cualquiera de estos derechos, escríbanos a{' '}
-        <a href="mailto:luis@bolivarsys.com">luis@bolivarsys.com</a> con el asunto "Derechos ARCO".
+        <a href="mailto:luis@bolivarsys.com">luis@bolivarsys.com</a> con el asunto &quot;Derechos ARCO&quot;.
         Responderemos en un plazo máximo de 15 días hábiles.
       </p>
 
@@ -75,7 +75,7 @@ export default function Privacidad() {
       <h2>7. Cambios en esta política</h2>
       <p>
         Nos reservamos el derecho de actualizar esta política en cualquier momento. La fecha de
-        "última actualización" al inicio de esta página indica cuándo se realizó la revisión más reciente.
+        &quot;última actualización&quot; al inicio de esta página indica cuándo se realizó la revisión más reciente.
         El uso continuado del sitio implica aceptación de los cambios.
       </p>
 

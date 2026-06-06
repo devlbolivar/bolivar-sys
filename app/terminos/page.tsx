@@ -10,9 +10,9 @@ export default function Terminos() {
     <LegalPage title="Términos de Servicio" updated="1 de junio de 2026">
 
       <p>
-        Estos Términos de Servicio regulan la relación contractual entre <strong>Luis Bolívar</strong> (en adelante "el
-        Proveedor"), operando bajo la marca <strong>Bolivar Systems</strong>, y cualquier persona natural o jurídica (en
-        adelante "el Cliente") que contrate sus servicios de desarrollo web, implementación de inteligencia
+        Estos Términos de Servicio regulan la relación contractual entre <strong>Luis Bolívar</strong> (en adelante &quot;el
+        Proveedor&quot;), operando bajo la marca <strong>Bolivar Systems</strong>, y cualquier persona natural o jurídica (en
+        adelante &quot;el Cliente&quot;) que contrate sus servicios de desarrollo web, implementación de inteligencia
         artificial o soporte mensual. Al iniciar un proyecto, el Cliente acepta estos términos en su totalidad.
       </p>
 
