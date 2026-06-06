@@ -26,7 +26,7 @@ export default function Hero() {
         </h1>
 
         <p className={styles.subtitle}>
-          Shopify, landing pages, agentes IA y soporte mensual para emprendedores que entienden que el resultado lo es todo.
+          Construyo la plataforma digital que tu negocio necesita para vender más — con diseño que convierte y tecnología que escala.
         </p>
 
         <div className={styles.btnRow}>
@@ -37,9 +37,10 @@ export default function Hero() {
             <button className={styles.btnSecondary}>Ver Servicios</button>
           </a>
         </div>
+        <p className={styles.ctaHint}>↑ Primera consulta de 30 min gratuita · sin compromisos</p>
 
         <div className={styles.statsRow}>
-          {[['20+', 'proyectos'], ['4.9★', 'rating'], ['100%', 'puntual'], ['IA', 'integrada']].map(([v, l]) => (
+          {[['10+', 'años exp.'], ['Disney', 'proyecto'], ['100%', 'puntual'], ['LATAM', 'cobertura']].map(([v, l]) => (
             <div key={l} className={styles.statCard}>
               <div className={styles.statValue}>{v}</div>
               <div className={styles.statLabel}>{l}</div>

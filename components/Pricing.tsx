@@ -11,6 +11,7 @@ export default function Pricing() {
         <div className={styles.header}>
           <p className={styles.tag}>&gt; PRICING.GET()</p>
           <h2 className={styles.h2}>Inversión clara</h2>
+
         </div>
       </FadeIn>
 
@@ -21,7 +22,20 @@ export default function Pricing() {
               {p.top && <div className={styles.badge}>POPULAR</div>}
 
               <div className={styles.planName}>[{p.name.toLowerCase()}]</div>
-              <div className={`${styles.price} ${p.top ? styles.priceFeatured : ''}`}>{p.price}</div>
+
+              <div className={styles.priceBlock}>
+                {p.originalPrice && (
+                  <div className={styles.priceRow}>
+                    <span className={styles.originalPrice}>{p.originalPrice}</span>
+                    <span className={styles.discountTag}>−30%</span>
+                  </div>
+                )}
+                <div className={`${styles.price} ${p.top ? styles.priceFeatured : ''}`}>
+                  {p.originalPrice ? <span className={styles.desde}>desde </span> : null}
+                  {p.price}
+                </div>
+              </div>
+
               <div className={styles.sub}>{p.sub}</div>
 
               <div className={styles.items}>
@@ -34,7 +48,7 @@ export default function Pricing() {
 
               <a href="#contacto">
                 <button className={`${styles.btn} ${p.top ? styles.btnFeatured : ''}`}>
-                  SELECCIONAR →
+                  {p.originalPrice ? 'SELECCIONAR →' : 'SOLICITAR COTIZACIÓN →'}
                 </button>
               </a>
             </div>

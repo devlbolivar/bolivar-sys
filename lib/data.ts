@@ -1,20 +1,20 @@
 export const SVC = [
-  { icon: '⬡', tag: 'Shopify',  title: 'Tienda Shopify',      desc: 'Setup completo con diseño custom, apps integradas y todo configurado para vender desde el primer día.' },
+  { icon: '⬡', tag: 'Shopify',  title: 'Tienda Shopify',      desc: 'Setup completo con plantilla premium, free o custom — apps integradas y listo para vender desde el primer día.' },
   { icon: '◎', tag: 'Web',      title: 'Landing / Sitio',     desc: 'Páginas de alta conversión que proyectan autoridad y generan confianza real en tu audiencia.'          },
   { icon: '◈', tag: 'IA',       title: 'Chatbot / Agente IA', desc: 'Asistentes que atienden, califican leads y venden por ti las 24 horas, los 7 días de la semana.'       },
   { icon: '◉', tag: 'Retainer', title: 'Retainer Mensual',    desc: 'Soporte continuo, optimización y actualizaciones para que tu plataforma nunca falle.'                  },
 ]
 
 export const CASES = [
-  { client: 'Noix Studio', type: 'Tienda Shopify', industry: 'Moda', metric: '$80K', mlabel: 'ventas primer trimestre', desc: 'Tienda desde cero con diseño editorial, integración Klaviyo y checkout con A/B testing. Resultado: 3.8% tasa de conversión desde el primer mes.', tags: ['Shopify','Klaviyo','CRO'] },
-  { client: 'Innova Supply', type: 'Agente IA', industry: 'B2B', metric: '90%', mlabel: 'consultas automatizadas', desc: 'Agente entrenado en catálogo, precios y políticas de la empresa. Integrado en WhatsApp Business y web. Ahorra 40+ horas mensuales de atención.', tags: ['OpenAI','WhatsApp','API'] },
-  { client: 'Bloom Co.', type: 'Landing + Retainer', industry: 'Marketing', metric: '-45%', mlabel: 'costo por lead adquirido', desc: 'Landing de alta conversión construida sobre datos del cliente + retainer mensual de optimización CRO. Resultados sostenidos en el tiempo.', tags: ['Landing','SEO','Retainer'] },
+  { client: 'Globant · Disney', type: 'Consultoría Enterprise', industry: 'Tecnología', metric: '30%', mlabel: 'reducción en tiempos de carga', desc: 'Lideré la migración de arquitectura monolítica a micro-frontend con Webpack Module Federation en plataformas internas de Disney, usadas por miles de usuarios en múltiples propiedades. Stack: React, TypeScript, Node.js.', tags: ['React', 'Microfrontends', 'TypeScript'] },
+  { client: 'WhatsApp AI Agent', type: 'Proyecto Propio · En Desarrollo', industry: 'SaaS / IA', metric: '24/7', mlabel: 'atención automatizada sin intervención', desc: 'SaaS de agente IA dirigido a PyMEs chilenas: motor de reservas con Google Calendar, sistema RAG para respuestas contextuales, y arquitectura multi-tenant. Stack: Python, FastAPI, OpenAI, LangChain.', tags: ['OpenAI', 'LangChain', 'FastAPI'] },
+  { client: 'Kdoce', type: 'Technical Lead · 5 años', industry: 'B2B', metric: '5+', mlabel: 'años liderando equipos de desarrollo', desc: 'Lideré desarrollo y mantenimiento de plataforma propietaria B2B. Coordiné equipos cross-funcionales, mentoricé developers junior y fui responsable de módulos críticos, calidad de código y alineamiento con objetivos de negocio.', tags: ['Technical Lead', 'Fullstack', 'Node.js'] },
 ]
 
 export const PLANS = [
-  { name: 'Starter', price: '$999', sub: 'Landing o tienda básica', items: ['Diseño personalizado','Hasta 5 páginas','SEO on-page','Formulario de contacto','14 días de soporte'], top: false },
-  { name: 'Growth',  price: '$2,499', sub: 'Proyecto completo + IA básica', items: ['Todo Starter','Apps + pasarelas de pago','Chatbot IA integrado','Analytics avanzado','30 días de soporte'], top: true },
-  { name: 'Scale',   price: '$4,999+', sub: 'Enterprise + agente IA custom', items: ['Todo Growth','Agente IA entrenado a medida','Retainer mensual incluido','Reportes quincenales','Soporte prioritario 24/7'], top: false },
+  { name: 'Starter', price: '$699', originalPrice: '$999', sub: 'Landing o tienda básica', items: ['Diseño personalizado','Hasta 5 páginas','SEO on-page','Formulario de contacto','14 días de soporte'], top: false },
+  { name: 'Growth',  price: '$1,699', originalPrice: '$2,499', sub: 'Proyecto completo + IA básica', items: ['Todo Starter','Apps + pasarelas de pago','Chatbot IA integrado','Analytics avanzado','30 días de soporte'], top: true },
+  { name: 'Scale',   price: 'A cotizar', originalPrice: null, sub: 'Enterprise + agente IA custom', items: ['Todo Growth','Agente IA entrenado a medida','Retainer mensual incluido','Reportes quincenales','Soporte prioritario 24/7'], top: false },
 ]
 
 export const STEPS = [
@@ -24,11 +24,7 @@ export const STEPS = [
   { n: '04', t: 'Lanzamiento', d: 'QA completo, deploy y entrega con soporte post-lanzamiento incluido en todos los planes.' },
 ]
 
-export const TESTI = [
-  { q: 'Nuestra tienda pasó de cero a $80K en ventas el primer trimestre. Luis entregó a tiempo y el resultado superó todo lo que esperábamos.', a: '— Mariana G., fundadora · Noix Studio' },
-  { q: 'El agente IA responde el 90% de las consultas solo. Ahorramos horas de atención cada semana. Lo recomiendo sin pensarlo dos veces.', a: '— Carlos R., CEO · Innova Supply' },
-  { q: 'Profesional, puntual y con un ojo increíble para el diseño. El retainer mensual vale cada peso. Seguimos trabajando juntos dos años después.', a: '— Sofía M., directora de marketing · Bloom Co.' },
-]
+export const TESTI: { q: string; a: string }[] = []
 
 export const FAQS = [
   { q: '¿Cuánto tiempo tarda un proyecto típico?', a: 'Un landing page toma 1–2 semanas. Una tienda Shopify completa, 2–4 semanas. Los proyectos con agente IA pueden tomar 4–6 semanas según la complejidad de los flujos.' },

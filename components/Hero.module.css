@@ -115,6 +115,15 @@
 }
 .btnSecondary:hover { border-color: rgba(0,212,255,.6); }
 
+.ctaHint {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: rgba(0,212,255,.35);
+  margin-top: -32px;
+  margin-bottom: 32px;
+  animation: fadeUp .7s .28s ease both;
+}
+
 .statsRow {
   display: flex;
   gap: 12px;

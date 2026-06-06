@@ -1,3 +1,4 @@
+import WhatsAppButton from '@/components/WhatsAppButton'
 import ScrollProgress from '@/components/ScrollProgress'
 import Nav from '@/components/Nav'
 import Hero from '@/components/Hero'
@@ -7,9 +8,7 @@ import Process from '@/components/Process'
 import Cases from '@/components/Cases'
 import Pricing from '@/components/Pricing'
 import VideoSection from '@/components/VideoSection'
-import Testimonials from '@/components/Testimonials'
 import FAQ from '@/components/FAQ'
-import Blog from '@/components/Blog'
 import Contact from '@/components/Contact'
 import Footer from '@/components/Footer'
 
@@ -25,11 +24,10 @@ export default function Home() {
       <Cases />
       <Pricing />
       <VideoSection />
-      <Testimonials />
       <FAQ />
-      <Blog />
       <Contact />
       <Footer />
+      <WhatsAppButton />
     </div>
   )
 }

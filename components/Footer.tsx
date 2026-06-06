@@ -3,9 +3,37 @@
 import styles from './Footer.module.css'
 
 const cols = [
-  { h: 'Servicios', ls: ['Tienda Shopify', 'Landing / Sitio', 'Chatbot IA', 'Retainer Mensual'] },
-  { h: 'Empresa',   ls: ['Sobre Luis', 'Casos de éxito', 'Blog', 'Proceso de trabajo'] },
-  { h: 'Legal',     ls: ['Política de privacidad', 'Términos de servicio', 'Cookies'] },
+  {
+    h: 'Servicios',
+    ls: [
+      { label: 'Tienda Shopify',   href: '#servicios' },
+      { label: 'Landing / Sitio',  href: '#servicios' },
+      { label: 'Chatbot IA',       href: '#servicios' },
+      { label: 'Retainer Mensual', href: '#servicios' },
+    ],
+  },
+  {
+    h: 'Navegación',
+    ls: [
+      { label: 'Sobre Luis',       href: '#intro'     },
+      { label: 'Proyectos',        href: '#casos'     },
+      { label: 'Proceso',          href: '#proceso'   },
+      { label: 'Contacto',         href: '#contacto'  },
+    ],
+  },
+  {
+    h: 'Legal',
+    ls: [
+      { label: 'Política de privacidad', href: '/privacidad' },
+      { label: 'Términos de servicio',   href: '/terminos'   },
+      { label: 'Cookies',                href: '/cookies'    },
+    ],
+  },
+]
+
+const socials = [
+  { label: 'LI', title: 'LinkedIn', href: 'https://linkedin.com/in/luisdevcode' },
+  { label: 'GH', title: 'GitHub',   href: 'https://github.com/devlbolivar'     },
 ]
 
 export default function Footer() {
@@ -19,8 +47,10 @@ export default function Footer() {
             Diseño, desarrollo e inteligencia artificial para emprendedores que quieren vender más, trabajar menos y escalar sin límites.
           </p>
           <div className={styles.socials}>
-            {[['LI', 'LinkedIn'], ['TW', 'Twitter/X'], ['IG', 'Instagram']].map(([s, title]) => (
-              <div key={s} className={styles.social} title={title}>{s}</div>
+            {socials.map(({ label, title, href }) => (
+              <a key={label} href={href} target="_blank" rel="noopener noreferrer" className={styles.social} title={title}>
+                {label}
+              </a>
             ))}
           </div>
         </div>
@@ -31,8 +61,8 @@ export default function Footer() {
             <div key={c.h}>
               <p className={styles.mobileColHead}>{c.h.toUpperCase()}</p>
               <div className={styles.mobileColLinks}>
-                {c.ls.map((l) => (
-                  <a key={l} href="#" className={styles.mobileColLink}>{l}</a>
+                {c.ls.map(({ label, href }) => (
+                  <a key={label} href={href} className={styles.mobileColLink}>{label}</a>
                 ))}
               </div>
             </div>
@@ -43,8 +73,8 @@ export default function Footer() {
           <div key={c.h} className={styles.col}>
             <p className={styles.colHead}>{c.h.toUpperCase()}</p>
             <div className={styles.colLinks}>
-              {c.ls.map((l) => (
-                <a key={l} href="#" className={styles.colLink}>{l}</a>
+              {c.ls.map(({ label, href }) => (
+                <a key={label} href={href} className={styles.colLink}>{label}</a>
               ))}
             </div>
           </div>
@@ -52,10 +82,10 @@ export default function Footer() {
       </div>
 
       <div className={styles.bottom}>
-        <span className={styles.copy}>© 2025 · LUIS_BOLIVAR · TODOS LOS DERECHOS RESERVADOS</span>
+        <span className={styles.copy}>© 2026 · LUIS_BOLIVAR · TODOS LOS DERECHOS RESERVADOS</span>
         <div className={styles.legalLinks}>
-          {['Privacidad', 'Términos', 'Cookies'].map((l) => (
-            <a key={l} href="#" className={styles.legalLink}>{l}</a>
+          {[['Privacidad', '/privacidad'], ['Términos', '/terminos'], ['Cookies', '/cookies']].map(([l, href]) => (
+            <a key={l} href={href} className={styles.legalLink}>{l}</a>
           ))}
         </div>
       </div>

@@ -10,7 +10,7 @@ export default function Cases() {
       <FadeIn>
         <div className={styles.header}>
           <p className={styles.tag}>&gt; CASES.FEATURED()</p>
-          <h2 className={styles.h2}>Resultados reales</h2>
+          <h2 className={styles.h2}>Experiencia real</h2>
         </div>
       </FadeIn>
 
@@ -34,6 +34,15 @@ export default function Cases() {
           </FadeIn>
         ))}
       </div>
+
+      <FadeIn>
+        <div className={styles.cta}>
+          <p className={styles.ctaText}>¿Listo para el mismo nivel de ejecución en tu proyecto?</p>
+          <a href="#contacto">
+            <button className={styles.ctaBtn}>Hablemos de tu proyecto →</button>
+          </a>
+        </div>
+      </FadeIn>
     </section>
   )
 }

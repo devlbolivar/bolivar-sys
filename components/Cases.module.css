@@ -115,6 +115,38 @@
   color: rgba(0,212,255,.52);
 }
 
+.cta {
+  margin-top: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.ctaText {
+  font-family: var(--font-grotesk), sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #E8F4F8;
+  letter-spacing: -0.5px;
+}
+
+.ctaBtn {
+  background: #00D4FF;
+  border: none;
+  color: #030D18;
+  padding: 15px 40px;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  font-family: var(--font-grotesk), sans-serif;
+  font-weight: 700;
+  box-shadow: 0 0 36px rgba(0,212,255,.3);
+  transition: box-shadow .2s;
+}
+.ctaBtn:hover { box-shadow: 0 0 60px rgba(0,212,255,.52); }
+
 @media (max-width: 767px) {
   .section { padding: 60px 24px; }
   .header  { margin-bottom: 36px; }
